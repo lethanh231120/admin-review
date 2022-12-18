@@ -1,0 +1,50 @@
+.form{
+    &-add{
+        max-width: 1400px;
+        margin: 20px auto;
+        background-color: #fff;
+        border-radius: 20px;
+        &-card{
+            &-title{
+                font-size: 25px;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.87)
+            }
+        }
+        &-title{
+            font-size: 40px;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.87);
+            margin-bottom: 20px;
+        }
+        & form{
+            padding: 20px;
+        }
+        &-item{
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 20px;
+            &-label{
+                width: 300px;
+            }
+            & .ant-form-item{
+                margin-bottom: 0;
+                width: 100%;
+            }
+            & .ant-select:not(.ant-select-customize-input) .ant-select-selector{
+                border-radius: 7px;
+            }
+            & .ant-select-single:not(.ant-select-customize-input) .ant-select-selector{
+                height: 40px;
+            }
+            & .ant-select-multiple .ant-select-selector{
+                line-height: 33px;
+            }
+            & .ant-select-single .ant-select-selector .ant-select-selection-item,
+            .ant-select-single .ant-select-selector .ant-select-selection-placeholder{
+                line-height: 40px;
+            }
+        }
+    }
+}

@@ -1,30 +1,14 @@
 import { useState, useEffect } from "react";
-
-import {
-  Row,
-  Col,
-  Breadcrumb,
-  Badge,
-  Dropdown,
-  Button,
-  List,
-  Avatar,
-  Input,
-  Drawer,
-  Typography,
-  Switch,
-} from "antd";
-
-import {
-  SearchOutlined,
-  StarOutlined,
-  TwitterOutlined,
-  FacebookFilled,
-} from "@ant-design/icons";
-
-import { NavLink, Link } from "react-router-dom";
+import { Row, Col, Breadcrumb, Badge, Dropdown, Button, List, Avatar, Drawer, Typography, Switch, Popover } from "antd";
+import { StarOutlined, TwitterOutlined, FacebookFilled } from "@ant-design/icons";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import avtar from "../../assets/images/team-2.jpg";
+import { getCookie, STORAGEKEY, removeCookie } from "../../utils/storage";
+import { post } from "../../api/products";
+import { useNavigate } from "react-router-dom";
+import { resetUserInfo } from "../../redux/userInfo";
+import { useDispatch } from "react-redux";
 
 const ButtonContainer = styled.div`
   .ant-btn-primary {
@@ -237,17 +221,11 @@ const setting = [
   </svg>,
 ];
 
-function Header({
-  placement,
-  name,
-  subName,
-  onPress,
-  handleSidenavColor,
-  handleSidenavType,
-  handleFixedNavbar,
-}) {
+const Header = (props) => {
+  const dispatch = useDispatch()
+  const { placement, name, onPress, handleSidenavColor, handleSidenavType, handleFixedNavbar, setOpenModal, openModal } = props
+  const navigate = useNavigate()
   const { Title, Text } = Typography;
-
   const [visible, setVisible] = useState(false);
   const [sidenavType, setSidenavType] = useState("transparent");
 
@@ -255,6 +233,17 @@ function Header({
 
   const showDrawer = () => setVisible(true);
   const hideDrawer = () => setVisible(false);
+  const token = getCookie(STORAGEKEY.ACCESS_TOKEN)
+  const userInfo = getCookie(STORAGEKEY.USER_INFO)
+
+  const logout = async() => {
+    await removeCookie(STORAGEKEY.ACCESS_TOKEN)
+    await removeCookie(STORAGEKEY.USER_INFO)
+    await removeCookie(STORAGEKEY.IS_AUTHENTICATED)
+    await post('reviews/signout')
+    dispatch(resetUserInfo())
+    navigate('login')
+  }
 
   return (
     <>
@@ -401,15 +390,35 @@ function Header({
               </div>
             </div>
           </Drawer>
-          <Link to="/sign-in" className="btn-sign-in">
-            {profile}
-            <span>Sign in</span>
-          </Link>
-          <Input
-            className="header-search"
-            placeholder="Type here..."
-            prefix={<SearchOutlined />}
-          />
+          {token && (
+            <Popover
+              placement='bottomRight'
+              content={(<>
+                <Typography
+                  variant='subtitle1'
+                  onClick={logout}
+                  className='header__link'
+                  style={{ cursor: 'pointer' }}
+                >
+                  Logout
+                </Typography>
+              </>)}
+              trigger='click'
+              overlayClassName='menu-header-user-info-popover'
+            >
+              <Typography
+                component='span'
+                variant='subtitle1'
+                fontWeight='bold'
+                style={{ cursor: 'pointer' }}
+              >
+                <div className='menu-header-account'>
+                  {profile}
+                  {userInfo?.userName ? userInfo?.userName : 'Admin'}
+                </div>
+              </Typography>
+            </Popover>
+          )}
         </Col>
       </Row>
     </>
