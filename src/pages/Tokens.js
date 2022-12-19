@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Row, Col, Card, Layout, Button, Input, Select, Form } from 'antd'
 import TableToken from '../components/table/TableToken'
 import { get } from '../api/products'
-import { getCookie, STORAGEKEY } from '../utils/storage'
 import _ from 'lodash'
 
 const { Content } = Layout

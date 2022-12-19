@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Row, Col, Card, Layout, Input, Button, Table, Avatar, Select, Typography, Checkbox } from 'antd'
 
 import './style.scss'
@@ -12,8 +12,7 @@ import face5 from "../assets/images/face-5.jpeg";
 const { Content } = Layout
 const { Title } = Typography
 
-const Reviews = () => {
-  const [data, setData] = useState([
+const data = [
     {
         key: '1',
         userName: 'Le Thanh',
@@ -74,7 +73,70 @@ const Reviews = () => {
         like: 1000,
         dislike: 10
     }
-  ])
+]
+const Reviews = () => {
+//   const [data, setData] = useState([
+//     {
+//         key: '1',
+//         userName: 'Le Thanh',
+//         image: face,
+//         projectID: 2,
+//         commentID: 2,
+//         replyID: 2,
+//         content: 'Bai review rat chat luong, dung trong tam',
+//         quanlity: true,
+//         like: 10,
+//         dislike: 1000
+//     },
+//     {
+//         key: '2',
+//         userName: 'Le Thanh',
+//         image: face2,
+//         projectID: 2,
+//         commentID: 2,
+//         replyID: 2,
+//         content: 'Bai review rat chat luong, dung trong tam',
+//         quanlity: false,
+//         like: 1000,
+//         dislike: 10
+//     },
+//     {
+//         key: '3',
+//         userName: 'Le Thanh',
+//         image: face3,
+//         projectID: 2,
+//         commentID: 2,
+//         replyID: 2,
+//         content: 'Bai review rat chat luong, dung trong tam',
+//         quanlity: true,
+//         like: 20,
+//         dislike: 2340
+//     },
+//     {
+//         key: '4',
+//         userName: 'Le Thanh',
+//         image: face4,
+//         projectID: 2,
+//         commentID: 2,
+//         replyID: 2,
+//         content: 'Bai review rat chat luong, dung trong tam',
+//         quanlity: false,
+//         like: 10003,
+//         dislike: 1034
+//     },
+//     {
+//         key: '5',
+//         userName: 'Le Thanh',
+//         image: face5,
+//         projectID: 2,
+//         commentID: 2,
+//         replyID: 2,
+//         content: 'Bai review rat chat luong, dung trong tam',
+//         quanlity: true,
+//         like: 1000,
+//         dislike: 10
+//     }
+//   ])
 
   const columns = [
     {

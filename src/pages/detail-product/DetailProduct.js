@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col, Form, Input, Button, Space, Select, Checkbox, Card, Image } from 'antd'
+import { Row, Col, Form, Input, Button, Space, Select, Card, Image } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { get, patch } from '../../api/products'
 import { regexFloatNumber } from '../../utils/regex'
@@ -289,7 +289,6 @@ const DetailProduct = () => {
                                         }
                                     </Form.Item>
                                 ) : (<span>
-                                    {/* {console.log(productInfo[0]?.subCategory?.split(','))} */}
                                     {productInfo[0]?.subCategory}
                                 </span>)}
                             </div>
@@ -383,14 +382,6 @@ const DetailProduct = () => {
                                     <Image src={productInfo[0]?.image} preview={false}/>
                                 </span>)}
                             </div>
-                            {/* <div className='form-add-item'>
-                                <div className='form-add-item-label'>Verify:</div>
-                                {isEditProduct ? (
-                                    <Form.Item name="isVerify" valuePropName="checked">
-                                        <Checkbox>Verify</Checkbox>
-                                    </Form.Item>
-                                ) : (<span>{productInfo[0]?.isVerify ? 'TRUE' : 'FALSE'}</span>)}
-                            </div> */}
                         </Card>
                         
                         <Card

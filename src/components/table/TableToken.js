@@ -1,47 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Table, Avatar, Typography, Button, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom';
-import { del, get } from '../../api/products';
-import bitcoin from '../../assets/images/bitcoin.png'
+import { del } from '../../api/products';
 import './tableToken.scss'
 
 const { Title } = Typography
 
-const data = [
-    {
-        name: 'bitcoin',
-        symbol: 'BTC',
-        decimals: 8,
-        src: 'https://www.facebook.com/',
-        image: bitcoin,
-        type: 'coin',
-        marketcap : 434736267,
-        chainId: 0,
-        tag: 'DEX'
-    },
-    {
-        name: 'bitcoin',
-        symbol: 'BTC',
-        decimals: 8,
-        src: 'https://www.facebook.com/',
-        image: bitcoin,
-        type: 'coin',
-        marketcap : 434736267,
-        chainId: 0,
-        tag: 'CEX'
-    },
-    {
-        name: 'bitcoin',
-        symbol: 'BTC',
-        decimals: 8,
-        src: 'https://www.facebook.com/',
-        image: bitcoin,
-        type: 'coin',
-        marketcap : 434736267,
-        chainId: 0,
-        tag: ''
-    },
-]
 const TableToken = ({ page, setPage, setReloadVerify, total, dataSearch, loading }) => {
   const PAGE_SIZE = 20
   const navigate = useNavigate()
@@ -99,9 +63,9 @@ const TableToken = ({ page, setPage, setReloadVerify, total, dataSearch, loading
     {
         title: "SRC",
         dataIndex: "src",
-        render: (_, record) => (<a href={record?.src} target='_blank' rel="noreferrer">
+        render: (_, record) => (<span>
             {record?.src}
-        </a>)
+        </span>)
     },
     {
         title: "Type",
@@ -137,17 +101,6 @@ const TableToken = ({ page, setPage, setReloadVerify, total, dataSearch, loading
         </>)
     },
   ]
-
-//   useEffect(() => {
-//     const getProducts = async() => {
-//         const tokens = await get(`reviews/list-coin?page=${page}`)
-//         // setData(projects?.data?.projects)
-//         console.log(tokens)
-//         // setTotal(tokens?.data?.count)
-//         // setReloadVerify(false)
-//     }
-//     getProducts()
-//   }, [page, reloadVerify])
 
   const handleChangePage = (value) => {
     setPage(value)
