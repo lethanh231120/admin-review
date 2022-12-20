@@ -15,6 +15,9 @@ const { TabPane } = Tabs
 const { Option } = Select
 
 const Products = () => {
+  const TYPE_PROJECT = 'project'
+  const TYPE_PRODUCT = 'product'
+  const TYPE_CRYPTO = 'crypto'
   const [categories, setCategories] = useState([])
   const [subCategories, setSubCategories] = useState([])
   const [defaulCategory, setDefaultCategory] = useState('Crypto Projects')
@@ -22,6 +25,7 @@ const Products = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const [product, setProduct] = useState()
+  const [type, setType] = useState('project')
 
 //   const handleResetForm = () => {
 //     form.resetFields()
@@ -49,8 +53,25 @@ const Products = () => {
   }, [defaulCategory, categories])
 
   const searchData = async(value) => {
-    const dataSearch = await search('search/suggest', { keyword: value })
-    setDataSearch(dataSearch?.data?.products)
+    const params = {
+        type: type,
+        keyword: value
+    }
+    const dataSearch = await search('search/suggest', params)
+    let data = []
+    if (type === TYPE_PROJECT) {
+        data = dataSearch?.data?.projects
+    } 
+    if (type === TYPE_PRODUCT) {
+        data = dataSearch?.data?.products
+    }
+    if (type === TYPE_CRYPTO) {
+        data = dataSearch?.data?.cryptos
+    }
+    setDataSearch(data)
+    setType('project')
+    // const dataSearch = await search('search/suggest', { keyword: value })
+    // setDataSearch(dataSearch?.data?.products)
   }
   const handleSearch = _.debounce(searchData, 250)
 
@@ -88,12 +109,28 @@ const Products = () => {
                                 <div className='banner-content-form'>
                                     <Row gutter={24}>
                                         <Col span={16} offset={4}>
-                                            <Row>
-                                                <Col span={24}>
+                                            <Row gutter={16}>
+                                                <Col span={4}>
+                                                    <Select
+                                                        placeholder="Select Type"
+                                                        onChange={(value) => setType(value)}
+                                                        value={type}
+                                                    >
+                                                        <Option value={TYPE_PROJECT}>Project</Option>
+                                                        <Option value={TYPE_PRODUCT}>Product</Option>
+                                                        <Option value={TYPE_CRYPTO}>Crypto</Option>
+                                                    </Select>
+                                                </Col>
+                                                <Col span={20}>
                                                     <Form.Item name="keyword">
                                                         <Input
                                                             placeholder='Enter key word....'
                                                             onChange={(e) => handleSearch(e.target.value)}
+                                                            disabled={!type}
+                                                            onBlur={() => {
+                                                                setDataSearch()
+                                                                form.resetFields()
+                                                            }}
                                                         />
                                                         <div className={`${dataSearch ? 'active' : ''} banner-content-form-data`}>
                                                         {dataSearch?.map((item, index) => (
@@ -116,59 +153,8 @@ const Products = () => {
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        {/* <Col span={8}>
-                                            <Form.Item name="category">
-                                                <Select
-                                                    placeholder="Please select a category"
-                                                    defaultValue={defaulCategory}
-                                                    onChange={(value) => handleChangeCategory(value)}
-                                                >
-                                                    {categories?.map((item) => (
-                                                        <Option value={item?.name}>{item?.name}</Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Form.Item name="amountDislike">
-                                                <Select
-                                                    placeholder="Please select sub category"
-                                                    showSearch
-                                                    mode="tags"
-                                                    optionFilterProp="children"
-                                                    filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
-                                                    filterSort={(optionA, optionB) =>
-                                                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                                                    }
-                                                    options={subCategories?.map((item) => ({
-                                                        value: `${item?.id}`,
-                                                        label: item?.name,
-                                                    }))}
-                                                />
-                                            </Form.Item>
-                                        </Col> */}
-                                        {/* <Col span={8}>
-                                            <Form.Item name="amountDislike">
-                                                <Select
-                                                    placeholder="Please select a type"
-                                                    defaultValue="great than 1000"
-                                                    // onChange={handleChangeType}
-                                                >
-                                                    <Option value={'great than 1000'}>Great than 1000</Option>
-                                                    <Option value={'less than 1000'}>Less than 1000</Option>
-                                                </Select>
-                                            </Form.Item>
-                                        </Col> */}
                                     </Row>
                                 </div>
-                                {/* <div className='review-button-search'
-                                    
-                                >
-                                    <Form.Item>
-                                        <Button type='primary' htmlType='submit'>Search</Button>
-                                        <Button onClick={handleResetForm}>Reset</Button>
-                                    </Form.Item>
-                                </div> */}
                             </Col>
                         </Row>
                         <Row>
@@ -209,3 +195,4 @@ const Products = () => {
 }
 
 export default Products
+
