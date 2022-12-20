@@ -14,7 +14,7 @@ module.exports = function(app) {
   )
   app.use(
     createProxyMiddleware('/searchURL', {
-      target: 'https://0202-42-114-127-37.ap.ngrok.io',
+      target: 'https://search-poker0.gear5.guru',
       changeOrigin: true,
       pathRewrite: {
         '^/searchURL': ''
