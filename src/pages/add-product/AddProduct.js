@@ -206,7 +206,7 @@ const AddProduct = () => {
                             <Input />
                         </Form.Item>
                     </div>
-                    {/* <div className='form-add-item'>
+                    <div className='form-add-item'>
                         <div className='form-add-item-label'>
                             <div>
                                 <span
@@ -280,7 +280,7 @@ const AddProduct = () => {
                                 />
                             }
                         </Form.Item>
-                    </div> */}
+                    </div>
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Decimal:</div>
                         <Form.Item name="decimals">
@@ -365,7 +365,7 @@ const AddProduct = () => {
                     </div> */}
                 </Card>
 
-                <Card
+                {/* <Card
                     title={<span className='form-add-card-title'>Categories</span>}
                     bordered={true}
                 >
@@ -432,8 +432,7 @@ const AddProduct = () => {
                         </>
                         )}
                     </Form.List>
-                </Card>
-
+                </Card> */}
 
                 <Card
                     title={<span className='form-add-card-title'>More Info</span>}
