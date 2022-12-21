@@ -1,27 +1,47 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Avatar, Button, Tag } from 'antd'
+import { Table, Avatar, Button, Tag, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom';
 import { del, get } from '../../api/products';
+import './listProduct.scss'
+import { EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons'
+import _ from 'lodash';
 
-const ListProduct = ({ dataSearch }) => {
-  const PAGE_SIZE = 20
+const { Title } = Typography
+
+const ListProduct = ({ loading, total, setReloadProduct, setPage, page, dataSearch }) => {
+  const PAGE_SIZE = 100
   const navigate = useNavigate()
-  const [total, setTotal] = useState(1)
-  const [reloadVerify, setReloadVerify] = useState(false)
-  const [page, setPage] = useState(1)
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(true)
 
   const handleDeleteProduct = async(e, record) => {
     e.stopPropagation()
-    await del(`reviews/research/projectId=${record?.id}`)
-    setReloadVerify(true)
+    await del(`reviews/product/productId=${record?.id}`)
+    setReloadProduct(true)
   }
 
-  const handleClickItem = (record) => {
-    navigate(`${record?.id}`)
+  const handleEditProduct = async(e, record) => {
+    e.stopPropagation()
+    // navigate(`../products/${record?.id}`, { state: { isEdit: true }})
+  }
+
+//   const handleClickItem = (record) => {
+//     navigate(`../products/${record?.id}`, { state: { isEdit: false }})
+//   }
+
+  const handleNewTab = (e, record) => {
+    e.stopPropagation()
+    const domain = window.location.origin
+    window.open(`${domain}/products/${record?.id}`, '_blank', 'noopener,noreferrer')
   }
  
+  const copyAddress = (e, text) => {
+    e.stopPropagation()
+    navigator.clipboard.writeText(text)
+    message.success({
+      content: 'Copy address successfully',
+      duration: 3
+    })
+  }
+
   const columns = [
     {
         title: "#",
@@ -33,19 +53,35 @@ const ListProduct = ({ dataSearch }) => {
     {
         title: "Product Name",
         dataIndex: "name",
-        render: (_, record) => <>
-        <Avatar.Group>
-            <Avatar
-                className="shape-avatar"
-                shape="square"
-                size={40}
-                src={record?.image}
-            />
-            <div className="avatar-info">
-                <span>{record?.name}</span>
-            </div>
-        </Avatar.Group>
-        </>
+        render: (_, record) => <span
+            onClick={(e) => handleNewTab(e, record)}
+            onContextMenu={(e) => handleNewTab(e, record)}
+        >
+            <Avatar.Group>
+                {record?.image  ? (
+                    <Avatar
+                        className="shape-avatar"
+                        shape="square"
+                        size={40}
+                        src={record?.image}
+                    />
+                ) : (
+                <span className='table-icon-coin-logo'>
+                    {(record?.symbol !== null)
+                    ? record?.symbol?.slice(0, 3)?.toUpperCase()
+                    : (record?.name !== null)
+                        ? record?.name?.slice(0, 3)?.toUpperCase()
+                        : ''}
+                </span>
+                )}
+                <div className="avatar-info">
+                    <Title level={5}>{record?.name}</Title>
+                    {record?.symbol && (
+                        <div className='avatar-info-symbol'>{record?.symbol ? record?.symbol : ''}</div>
+                    )}
+                </div>
+            </Avatar.Group>
+        </span>
     },
     {
         title: "Type",
@@ -54,6 +90,13 @@ const ListProduct = ({ dataSearch }) => {
             <Tag color={record?.type === 'token' ? 'volcano' : 'geekblue'}>
                 {record?.type}
             </Tag>
+        </span>)
+    },
+    {
+        title: "Category",
+        render: (_, record) => (<span
+        >
+            {record?.category}
         </span>)
     },
     {
@@ -67,43 +110,45 @@ const ListProduct = ({ dataSearch }) => {
         title: "Address",
         dataIndex: "address",
         render: (_, record) => (<span>
-            {record?.type === 'token' ? record?.address : ''}
+            {record?.address && (
+                <>
+                    {record?.address}
+                    <CopyOutlined style={{ marginLeft: '0.5rem' }} onClick={(e) => copyAddress(e, record?.address)}/>
+                </>
+            )}
         </span>)
     },
     {
-        title: 'Total Reviews',
-        dataIndex: "totalReviews",
+        title: 'Sub Category',
+        dataIndex: "subcategory",
         render: (_, record) => <>
-            {record?.detail?.founders?.map((item, index) => <span key={index}>{item?.name}, </span>)}
+            {record?.subcategory?.split(',')?.map((item) => (<div>
+                {item}
+            </div>))}
         </>
     },
     {
-        title: 'Scam',
-        dataIndex: "totalIsScam",
+        title: 'Show',
+        dataIndex: "isshow",
         render: (_, record) => (<span>
-            {record?.totalIsScam !== 'NULL' ? record?.totalIsScam : ''}
+            {record?.isshow ? 'TRUE' : 'FALSE'}
+        </span>)
+    },
+    {
+        title: 'From By',
+        dataIndex: "fromBy",
+        render: (_, record) => (<span>
+            {record?.fromBy}
         </span>)
     },
     {
         title: "Action",
-        render: (_, record) => (<>
-            <Button type='primary' danger onClick={(e) => handleDeleteProduct(e, record)}>Delete</Button>
-        </>)
+        render: (_, record) => (<div className='product-icon-action'>
+            <EditOutlined onClick={(e) => handleEditProduct(e, record)}/>
+            <DeleteOutlined onClick={(e) => handleDeleteProduct(e, record)}/>
+        </div>)
     },
   ]
-
-  useEffect(() => {
-    const getProducts = async() => {
-        const product = await get(`reviews/product?page=${page}`)
-        console.log(product?.data?.products)
-        setData(product?.data?.products)
-        setTotal(product?.data?.count)
-        setReloadVerify(false)
-        setLoading(false)
-    }
-    getProducts()
-  }, [page, reloadVerify])
-
 
   const handleChangePage = (value) => {
     setPage(value)
@@ -114,20 +159,16 @@ const ListProduct = ({ dataSearch }) => {
         <Table
             loading={loading}
             columns={columns}
-            dataSource={data}
+            dataSource={dataSearch}
             pagination={{
                 defaultCurrent: 1,
                 pageSize: PAGE_SIZE,
-                showSizeChanger: false,
                 total: total,
+                showSizeChanger: false,
                 onChange: (curren) => handleChangePage(curren)
             }}
-            style={{ borderRadius: '1.8rem' }}
-            className="ant-border-space"
-            onRow={(record) => ({
-                onClick: () => { handleClickItem(record) }
-            })}
-            rowKey={(record) => record?.name}
+            rowKey={(record) => record?.id}
+            scroll={{ x: 'max-content' }}
         />
     </div>
   )

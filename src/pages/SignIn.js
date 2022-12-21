@@ -3,6 +3,7 @@ import { Layout, Button, Row, Col, Typography, Form, Input } from "antd";
 import { setCookie, STORAGEKEY } from "../utils/storage";
 import { post } from "../api/products";
 import { useNavigate, Link } from "react-router-dom";
+import Password from "antd/lib/input/Password";
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -67,7 +68,7 @@ const SignIn = () => {
                     },
                   ]}
                 >
-                  <Input placeholder="Password" />
+                  <Input.Password placeholder="Password" />
                 </Form.Item>
 
                 <Form.Item>

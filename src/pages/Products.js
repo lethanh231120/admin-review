@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
-import { Row, Col, Card, Layout, Button, Input, Tabs, Form, Image, Select } from 'antd'
+import { Row, Col, Card, Layout, Button, Input, Form, Image, Select } from 'antd'
 
 import { useNavigate } from 'react-router-dom'
 import ListProduct from '../components/product-tab/ListProducts'
-import ProductResearch from '../components/product-tab/ProductResearch'
 import { search } from '../api/search'
 import _ from 'lodash'
 import './styles/product.scss'
 
 const { Option } = Select
 const { Content } = Layout
-const { TabPane } = Tabs
 
 const Products = () => {
   const TYPE_PROJECT = 'project'
@@ -149,18 +147,19 @@ const Products = () => {
                                         margin: 0
                                     }}
                                 >
-                                    <Tabs type="card">
+                                    <ListProduct/>
+                                    {/* <Tabs type="card">
                                         <TabPane tab="Product Research" key="1">
                                             <div className="table-responsive">
                                                 <ProductResearch/>
                                             </div>
                                         </TabPane>
-                                        <TabPane tab="Product" key="2">
+                                        <TabPane tab="Product" key="1">
                                             <div className="table-responsive">
                                                 <ListProduct/>
                                             </div>
                                         </TabPane>
-                                        {/* <TabPane tab="Pending" key="2">
+                                        <TabPane tab="Pending" key="2">
                                             <div className="table-responsive">
                                                 <ProductPending/>
                                             </div>
@@ -169,8 +168,8 @@ const Products = () => {
                                             <div className="table-responsive">
                                                 <ProductScam/>
                                             </div>
-                                        </TabPane> */}
-                                    </Tabs>
+                                        </TabPane>
+                                    </Tabs> */}
                                 </Content>
                             </Col>
                         </Row>

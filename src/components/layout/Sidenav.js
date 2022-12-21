@@ -67,10 +67,15 @@ function Sidenav({ color }) {
     //   image: billing,
     //   label: 'Reviews'
     // },
+    // {
+    //   url: 'products',
+    //   image: billing,
+    //   label: 'Products'
+    // },
     {
-      url: 'products',
+      url: 'duplicate',
       image: billing,
-      label: 'Products'
+      label: 'Duplicate'
     },
     // {
     //   url: 'tokens',
@@ -118,7 +123,7 @@ function Sidenav({ color }) {
     <>
       <div className="brand">
         <img src={logo} alt="" />
-        <span>Admin Review</span>
+        <span>GEAR5.guru</span>
       </div>
       <hr />
       <Menu theme="light" mode="inline">

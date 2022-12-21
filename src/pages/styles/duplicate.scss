@@ -1,0 +1,8 @@
+.duplicate-select{
+    & .ant-select:not(.ant-select-customize-input) .ant-select-selector{
+        border-radius: 0.5rem;
+    }
+    & .ant-select{
+        color: #000;
+    }
+}
