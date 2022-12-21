@@ -1,0 +1,65 @@
+.table-icon-coin{
+    width: 35px;
+    height: 35px;
+    & img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    &-logo{
+        width:35px;
+        margin-right: 0.5rem;
+        height: 35px;
+        border-radius: 25px;
+        background-color: orange;
+        color: #000;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        line-height: 35px;
+        text-align: center;
+    }
+}
+.avatar{
+    &-info{
+        display: flex;
+        align-items: center;
+        & h5.ant-typography{
+            margin-top: 0px !important;
+        }
+        &-symbol{
+            position: relative;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+            &:after{
+                position: absolute;
+                content: '';
+                left: 0;
+                top: 25%;
+                width: 0.25rem;
+                height: 0.25rem;
+                background-color: rgba(0, 0, 0, 0.2);
+                border-radius: 50%;
+            }
+        }
+    }
+}
+.ant-table-tbody > tr > td, .ant-table-thead > tr > th{
+    cursor: pointer;
+}
+.product-icon-action{
+    & .anticon{
+        padding: 0.5rem;
+        &:first-child{
+            margin-right: 0.5rem;
+            &:hover{
+                color: blue;
+            }
+        }
+        &:last-child{
+            &:hover{
+                color: red;
+            }
+        }
+    }
+}

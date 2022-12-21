@@ -1,58 +1,25 @@
-/*!
-  =========================================================
-  * Muse Ant Design Dashboard - v1.0.0
-  =========================================================
-  * Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-  * Copyright 2021 Creative Tim (https://www.creative-tim.com)
-  * Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-  * Coded by Creative Tim
-  =========================================================
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-import { useState } from "react";
+import React, { useEffect, useState } from 'react'
+import { Card, Col, Row, Typography } from "antd";
+import { Layout, Button, Input, Form, Select, Checkbox } from 'antd'
+import { get } from '../api/products';
 
-import {
-  Card,
-  Col,
-  Row,
-  Typography,
-  Tooltip,
-  Progress,
-  Upload,
-  message,
-  Button,
-  Timeline,
-  Radio,
-} from "antd";
-import {
-  ToTopOutlined,
-  MenuUnfoldOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
-import Paragraph from "antd/lib/typography/Paragraph";
+import { useNavigate } from 'react-router-dom'
+import ListProduct from '../components/product-tab/ListProducts'
+import './styles/product.scss'
 
-import Echart from "../components/chart/EChart";
-import LineChart from "../components/chart/LineChart";
+const { Content } = Layout
+const { Title } = Typography;
 
-import ava1 from "../assets/images/logo-shopify.svg";
-import ava2 from "../assets/images/logo-atlassian.svg";
-import ava3 from "../assets/images/logo-slack.svg";
-import ava4 from "../assets/images/logo-spotify.svg";
-import ava5 from "../assets/images/logo-jira.svg";
-import ava6 from "../assets/images/logo-invision.svg";
-import team1 from "../assets/images/team-1.jpg";
-import team2 from "../assets/images/team-2.jpg";
-import team3 from "../assets/images/team-3.jpg";
-import team4 from "../assets/images/team-4.jpg";
-import card from "../assets/images/info-card-1.jpg";
+const dataDefault = [
+  { name: 'name', value: '' },
+  { name: 'symbol', value: '' },
+  { name: 'address', value: '' },
+  { name: 'show', value: true },
+  { name: 'scam', value: false }
+]
 
-function Home() {
-  const { Title, Text } = Typography;
-
-  const onChange = (e) => console.log(`radio checked:${e.target.value}`);
-
-  const [reverse, setReverse] = useState(false);
-
+const Home = () => {
+  const [metric, setMetric] = useState()
   const dollor = [
     <svg
       width="22"
@@ -78,481 +45,429 @@ function Home() {
       ></path>
     </svg>,
   ];
-  const profile = [
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
-      <path
-        d="M9 6C9 7.65685 7.65685 9 6 9C4.34315 9 3 7.65685 3 6C3 4.34315 4.34315 3 6 3C7.65685 3 9 4.34315 9 6Z"
-        fill="#fff"
-      ></path>
-      <path
-        d="M17 6C17 7.65685 15.6569 9 14 9C12.3431 9 11 7.65685 11 6C11 4.34315 12.3431 3 14 3C15.6569 3 17 4.34315 17 6Z"
-        fill="#fff"
-      ></path>
-      <path
-        d="M12.9291 17C12.9758 16.6734 13 16.3395 13 16C13 14.3648 12.4393 12.8606 11.4998 11.6691C12.2352 11.2435 13.0892 11 14 11C16.7614 11 19 13.2386 19 16V17H12.9291Z"
-        fill="#fff"
-      ></path>
-      <path
-        d="M6 11C8.76142 11 11 13.2386 11 16V17H1V16C1 13.2386 3.23858 11 6 11Z"
-        fill="#fff"
-      ></path>
-    </svg>,
-  ];
-  const heart = [
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M3.17157 5.17157C4.73367 3.60948 7.26633 3.60948 8.82843 5.17157L10 6.34315L11.1716 5.17157C12.7337 3.60948 15.2663 3.60948 16.8284 5.17157C18.3905 6.73367 18.3905 9.26633 16.8284 10.8284L10 17.6569L3.17157 10.8284C1.60948 9.26633 1.60948 6.73367 3.17157 5.17157Z"
-        fill="#fff"
-      ></path>
-    </svg>,
-  ];
-  const cart = [
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M10 2C7.79086 2 6 3.79086 6 6V7H5C4.49046 7 4.06239 7.38314 4.00612 7.88957L3.00612 16.8896C2.97471 17.1723 3.06518 17.455 3.25488 17.6669C3.44458 17.8789 3.71556 18 4 18H16C16.2844 18 16.5554 17.8789 16.7451 17.6669C16.9348 17.455 17.0253 17.1723 16.9939 16.8896L15.9939 7.88957C15.9376 7.38314 15.5096 7 15 7H14V6C14 3.79086 12.2091 2 10 2ZM12 7V6C12 4.89543 11.1046 4 10 4C8.89543 4 8 4.89543 8 6V7H12ZM6 10C6 9.44772 6.44772 9 7 9C7.55228 9 8 9.44772 8 10C8 10.5523 7.55228 11 7 11C6.44772 11 6 10.5523 6 10ZM13 9C12.4477 9 12 9.44772 12 10C12 10.5523 12.4477 11 13 11C13.5523 11 14 10.5523 14 10C14 9.44772 13.5523 9 13 9Z"
-        fill="#fff"
-      ></path>
-    </svg>,
-  ];
-  const count = [
-    {
-      today: "Today’s Sales",
-      title: "$53,000",
-      persent: "+30%",
-      icon: dollor,
-      bnb: "bnb2",
-    },
-    {
-      today: "Today’s Users",
-      title: "3,200",
-      persent: "+20%",
-      icon: profile,
-      bnb: "bnb2",
-    },
-    {
-      today: "New Clients",
-      title: "+1,200",
-      persent: "-20%",
-      icon: heart,
-      bnb: "redtext",
-    },
-    {
-      today: "New Orders",
-      title: "$13,200",
-      persent: "10%",
-      icon: cart,
-      bnb: "bnb2",
-    },
-  ];
+  const [form] = Form.useForm()
+  const navigate = useNavigate()
+  const [params, setParams] = useState([])
+  const [defaultValue, setDefaultValue] = useState(dataDefault)
 
-  const list = [
-    {
-      img: ava1,
-      Title: "Soft UI Shopify Version",
-      bud: "$14,000",
-      progress: <Progress percent={60} size="small" />,
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team2} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Alexander Smith">
-            <img className="tootip-img" src={team3} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Jessica Doe">
-            <img className="tootip-img" src={team4} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
-    {
-      img: ava2,
-      Title: "Progress Track",
-      bud: "$3,000",
-      progress: <Progress percent={10} size="small" />,
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team2} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
-    {
-      img: ava3,
-      Title: "Fix Platform Errors",
-      bud: "Not Set",
-      progress: <Progress percent={100} size="small" status="active" />,
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Alexander Smith">
-            <img className="tootip-img" src={team3} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
-    {
-      img: ava4,
-      Title: "Launch new Mobile App",
-      bud: "$20,600",
-      progress: <Progress percent={100} size="small" status="active" />,
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team2} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
-    {
-      img: ava5,
-      Title: "Add the New Landing Page",
-      bud: "$4,000",
-      progress: <Progress percent={80} size="small" />,
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team2} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Alexander Smith">
-            <img className="tootip-img" src={team3} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Jessica Doe">
-            <img className="tootip-img" src={team4} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
+  const [reloadProduct, setReloadProduct] = useState(false)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [dataSearch, setDataSearch] = useState()
+  const [paramsSearch, setParamSearch] = useState()
+  const [total, setTotal] = useState(1)
+  const [isSearch, setIsSearch] = useState(false)
 
-    {
-      img: ava6,
-      Title: "Redesign Online Store",
-      bud: "$2,000",
-      progress: (
-        <Progress
-          percent={100}
-          size="small"
-          status="exception"
-          format={() => "Cancel"}
-        />
-      ),
-      member: (
-        <div className="avatar-group mt-2">
-          <Tooltip placement="bottom" title="Ryan Tompson">
-            <img className="tootip-img" src={team1} alt="" />
-          </Tooltip>
-          <Tooltip placement="bottom" title="Romina Hadid">
-            <img className="tootip-img" src={team2} alt="" />
-          </Tooltip>
-        </div>
-      ),
-    },
-  ];
 
-  const timelineList = [
-    {
-      title: "$2,400 - Redesign store",
-      time: "09 JUN 7:20 PM",
-      color: "green",
-    },
-    {
-      title: "New order #3654323",
-      time: "08 JUN 12:20 PM",
-      color: "green",
-    },
-    {
-      title: "Company server payments",
-      time: "04 JUN 3:10 PM",
-    },
-    {
-      title: "New card added for order #4826321",
-      time: "02 JUN 2:45 PM",
-    },
-    {
-      title: "Unlock folders for development",
-      time: "18 MAY 1:30 PM",
-    },
-    {
-      title: "New order #46282344",
-      time: "14 MAY 3:30 PM",
-      color: "gray",
-    },
-  ];
+  const getAll = async() => {
+    const product = await get(`reviews/product/all?page=${page}`)
+    if (product?.data) {
+      setTotal(product?.data?.count)
+      setDataSearch(product?.data?.products)
+      setReloadProduct(false)
+      setLoading(false)
+    }
+  }
 
-  const uploadProps = {
-    name: "file",
-    action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-  };
+  // filter
+  const getDataSearch = async(params) => {
+    const dataSearch = await get('reviews/product/filter', params)
+    if (dataSearch?.data) {
+      setDataSearch(dataSearch?.data?.products)
+      setIsSearch(true)
+      setTotal(dataSearch?.data?.count)
+      setLoading(false)
+      setReloadProduct(false)
+      setDefaultValue(dataDefault)
+    }
+  }
+
+  const onFinish = async(values) => {
+    setLoading(true)
+    const params = {
+      ...values,
+      name: values?.name?.toLowerCase(),
+      symbol: values?.symbol?.toLowerCase(),
+      address: values?.address?.toLowerCase(),
+      category: values?.category !== undefined ? values?.category?.toLowerCase() : '',
+      chainName: values?.chainName !== undefined ? values?.chainName : '',
+      src: values?.src !== undefined ? values?.src : '',
+      type: values?.type !== undefined ? values?.type : '',
+      page: page,
+    }
+    setParamSearch({
+      ...values,
+      address: values?.address?.toLowerCase(),
+      category: values?.category?.toLowerCase(),
+      page: 1
+    })
+    getDataSearch(params)
+    form.resetFields()
+  }
+
+  const handleResetForm = () => {
+    form.resetFields()
+  }
+  
+  // get param form search
+  useEffect(() => {
+    const getParams = async() => {
+        const tokens = await get(`reviews/product/list-value-fields`)
+        const types = []
+        tokens?.data?.type?.map((item) => (
+          types.push(item?.split(', '))
+        ))
+        const onlyUnique = (value, index, self) => {
+          return (self.indexOf(value) === index && value !== '');
+        }
+        const unique = types?.flat(1)?.filter(onlyUnique)
+
+        const src = tokens?.data?.src?.filter((item) => item !== '')
+        const category = tokens?.data?.category?.filter((item) => item !== '')
+        const chainName = tokens?.data?.chainName?.filter((item) => item !== '')
+        const newParams = {
+            src: src,
+            category: category,
+            chainName: chainName,
+            type: unique
+        }
+        setParams(newParams)
+    }
+    getParams()
+  }, [])
+
+  // get metric
+  useEffect(() => {
+    const getMetric = async() => {
+      const metric = await get('reviews/metric/all')
+      setMetric(metric?.data)
+    }
+    getMetric()
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    if (isSearch) {
+      getDataSearch(paramsSearch)
+    } else {
+      getAll()
+    }
+  }, [reloadProduct])
+
+  // get data all
+  useEffect(() => {
+    !isSearch && getAll()
+  }, [page, isSearch])
 
   return (
     <>
       <div className="layout-content">
-        <Row className="rowgap-vbox" gutter={[24, 0]}>
-          {count.map((c, index) => (
-            <Col
-              key={index}
-              xs={24}
-              sm={24}
-              md={12}
-              lg={6}
-              xl={6}
-              className="mb-24"
-            >
+        {metric && (
+          <Row className="rowgap-vbox" gutter={[24, 0]} style={{ padding: '1rem' }}>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
               <Card bordered={false} className="criclebox ">
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
-                      <span>{c.today}</span>
+                      <span>Total tokens</span>
                       <Title level={3}>
-                        {c.title} <small className={c.bnb}>{c.persent}</small>
+                        {new Intl.NumberFormat().format(metric?.productTypes?.find((item) => item?.type === 'token')?.count)}
                       </Title>
                     </Col>
                     <Col xs={6}>
-                      <div className="icon-box">{c.icon}</div>
+                      <div className="icon-box">{dollor}</div>
                     </Col>
                   </Row>
                 </div>
               </Card>
             </Col>
-          ))}
-        </Row>
-
-        <Row gutter={[24, 0]}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <Echart />
-            </Card>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={14} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <LineChart />
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={[24, 0]}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={16} className="mb-24">
-            <Card bordered={false} className="criclebox cardbody h-full">
-              <div className="project-ant">
-                <div>
-                  <Title level={5}>Projects</Title>
-                  <Paragraph className="lastweek">
-                    done this month<span className="blue">40%</span>
-                  </Paragraph>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Total ICOs</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.productTypes?.find((item) => item?.type === 'ico')?.count)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
                 </div>
-                <div className="ant-filtertabs">
-                  <div className="antd-pro-pages-dashboard-analysis-style-salesExtra">
-                    <Radio.Group onChange={onChange} defaultValue="a">
-                      <Radio.Button value="a">ALL</Radio.Button>
-                      <Radio.Button value="b">ONLINE</Radio.Button>
-                      <Radio.Button value="c">STORES</Radio.Button>
-                    </Radio.Group>
-                  </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Total dapp</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.productTypes?.find((item) => item?.type === 'project')?.count)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
                 </div>
-              </div>
-              <div className="ant-list-box table-responsive">
-                <table className="width-100">
-                  <thead>
-                    <tr>
-                      <th>COMPANIES</th>
-                      <th>MEMBERS</th>
-                      <th>BUDGET</th>
-                      <th>COMPLETION</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((d, index) => (
-                      <tr key={index}>
-                        <td>
-                          <h6>
-                            <img
-                              src={d.img}
-                              alt=""
-                              className="avatar-sm mr-10"
-                            />{" "}
-                            {d.Title}
-                          </h6>
-                        </td>
-                        <td>{d.member}</td>
-                        <td>
-                          <span className="text-xs font-weight-bold">
-                            {d.bud}{" "}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="percent-progress">{d.progress}</div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="uploadfile shadow-none">
-                <Upload {...uploadProps}>
-                  <Button
-                    type="dashed"
-                    className="ant-full-box"
-                    icon={<ToTopOutlined />}
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Total coins</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.productTypes?.find((item) => item?.type === 'coin')?.count)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Product othes</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.productTypes?.find((item) => item?.type === 'other')?.count)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Scam products</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.scamProduct)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Mod add</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.totalProjectResearch)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
+              <Card bordered={false} className="criclebox ">
+                <div className="number">
+                  <Row align="middle" gutter={[24, 0]}>
+                    <Col xs={18}>
+                      <span>Categories</span>
+                      <Title level={3}>
+                        {new Intl.NumberFormat().format(metric?.categories?.length)}
+                      </Title>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="icon-box">{dollor}</div>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        )}
+        <div>
+          <Row style={{ padding: '1rem' }}>
+              <Col xs="24" xl={24}>
+                  <Card
+                      bordered={false}
+                      className="criclebox tablespace mb-24"
+                      title='Products Research'
+                      extra={
+                        <>
+                          <Button
+                              type='primary'
+                              onClick={() => navigate('../products/add-product')}
+                          >
+                              Add product
+                          </Button>
+                        </>
+                      }
                   >
-                    <span className="click">Click to Upload</span>
-                  </Button>
-                </Upload>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={8} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <div className="timeline-box">
-                <Title level={5}>Orders History</Title>
-                <Paragraph className="lastweek" style={{ marginBottom: 24 }}>
-                  this month <span className="bnb2">20%</span>
-                </Paragraph>
-
-                <Timeline
-                  pending="Recording..."
-                  className="timelinelist"
-                  reverse={reverse}
-                >
-                  {timelineList.map((t, index) => (
-                    <Timeline.Item color={t.color} key={index}>
-                      <Title level={5}>{t.title}</Title>
-                      <Text>{t.time}</Text>
-                    </Timeline.Item>
-                  ))}
-                </Timeline>
-                <Button
-                  type="primary"
-                  className="width-100"
-                  onClick={() => setReverse(!reverse)}
-                >
-                  {<MenuUnfoldOutlined />} REVERSE
-                </Button>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={[24, 0]}>
-          <Col xs={24} md={12} sm={24} lg={12} xl={14} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <Row gutter>
-                <Col
-                  xs={24}
-                  md={12}
-                  sm={24}
-                  lg={12}
-                  xl={14}
-                  className="mobile-24"
-                >
-                  <div className="h-full col-content p-20">
-                    <div className="ant-muse">
-                      <Text>Built by developers</Text>
-                      <Title level={5}>Muse Dashboard for Ant Design</Title>
-                      <Paragraph className="lastweek mb-36">
-                        From colors, cards, typography to complex elements, you
-                        will find the full documentation.
-                      </Paragraph>
-                    </div>
-                    <div className="card-footer">
-                      <a className="icon-move-right" href="#pablo">
-                        Read More
-                        {<RightOutlined />}
-                      </a>
-                    </div>
-                  </div>
-                </Col>
-                <Col
-                  xs={24}
-                  md={12}
-                  sm={24}
-                  lg={12}
-                  xl={10}
-                  className="col-img"
-                >
-                  <div className="ant-cret text-right">
-                    <img src={card} alt="" className="border10" />
-                  </div>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col xs={24} md={12} sm={24} lg={12} xl={10} className="mb-24">
-            <Card bordered={false} className="criclebox card-info-2 h-full">
-              <div className="gradent h-full col-content">
-                <div className="card-content">
-                  <Title level={5}>Work with the best</Title>
-                  <p>
-                    Wealth creation is an evolutionarily recent positive-sum
-                    game. It is all about who take the opportunity first.
-                  </p>
-                </div>
-                <div className="card-footer">
-                  <a className="icon-move-right" href="#pablo">
-                    Read More
-                    <RightOutlined />
-                  </a>
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+                    <Row>
+                      <Col span={22} offset={1}> 
+                          <Content
+                              style={{
+                                  borderRadius: '1.2rem',
+                                  margin: '2rem 0',
+                                  padding: '2rem',
+                                  border: '1px solid rgba(0, 0, 0, 0.3)'
+                              }}
+                          >
+                              <Form
+                                form={form}
+                                onFinish={onFinish}
+                                fields={defaultValue}
+                              >
+                                <Row gutter={24}>
+                                  <Col span={8}>
+                                      <Form.Item name="name">
+                                          <Input
+                                            placeholder='Enter token name'
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="symbol">
+                                          <Input
+                                            placeholder='Enter token symbol'
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="address">
+                                          <Input
+                                            placeholder='Enter address'
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="src">
+                                          <Select
+                                              placeholder="Source"
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                              filterSort={(optionA, optionB) =>
+                                                  (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                              }
+                                              options={params?.src?.map((item) => ({
+                                                  value: item,
+                                                  label: item,
+                                              }))}
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="category">
+                                          <Select
+                                              placeholder="Category"
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                              filterSort={(optionA, optionB) =>
+                                                  (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                              }
+                                              options={params?.category?.map((item) => ({
+                                                  value: item,
+                                                  label: item,
+                                              }))}
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="type">
+                                          <Select
+                                              placeholder="Type"
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                              filterSort={(optionA, optionB) =>
+                                                  (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                              }
+                                              options={params?.type?.map((item) => ({
+                                                  value: item,
+                                                  label: item,
+                                              }))}
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="chainName">
+                                          <Select
+                                              placeholder="Chain name"
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                              filterSort={(optionA, optionB) =>
+                                                  (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                              }
+                                              options={params?.chainName?.map((item) => ({
+                                                  value: item,
+                                                  label: item,
+                                              }))}
+                                          />
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="show" valuePropName="checked">
+                                          <Checkbox>Show</Checkbox>
+                                      </Form.Item>
+                                  </Col>
+                                  <Col span={8}>
+                                      <Form.Item name="scam" valuePropName="checked">
+                                          <Checkbox>Scam</Checkbox>
+                                      </Form.Item>
+                                  </Col>
+                                </Row>
+                                <div className='review-button-search'>
+                                    <Form.Item>
+                                        <Button type='primary' htmlType='submit'>Search</Button>
+                                        <Button onClick={handleResetForm}>Reset</Button>
+                                    </Form.Item>
+                                </div>
+                              </Form>
+                          </Content>
+                      </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}> 
+                            <Content
+                                style={{
+                                    margin: 0
+                                }}
+                            >
+                                <ListProduct
+                                  dataSearch={dataSearch}
+                                  loading={loading}
+                                  setReloadProduct={setReloadProduct}
+                                  page={page}
+                                  setPage={setPage}
+                                  total={total}
+                                />
+                            </Content>
+                        </Col>
+                    </Row>
+                </Card>
+              </Col>
+          </Row>
+        </div>
       </div>
     </>
   );

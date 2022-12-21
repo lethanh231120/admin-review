@@ -1531,6 +1531,11 @@ ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.left-nav li svg path {
 .ant-card.tablespace .ant-card-body {
   padding: 0px;
 }
+.ant-col-xs-6{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .tablespace .ant-card-head-title {
   font-size: 20px;
   font-weight: 600;

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, createContext } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout, Affix } from "antd";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
 import Footer from "./Footer";
+import Duplicate from "../../pages/Duplicate";
 
 import { Routes, Route } from "react-router-dom";
 import Home from "../../../src/pages/Home";
@@ -19,10 +20,14 @@ import AddProduct from "../../pages/add-product/AddProduct";
 import SignIn from "../modal/SignIn";
 import Monitor from "../../pages/Monitor";
 import AddService from "../monitor/AddService";
+import ListProductDuplicate from "../product-tab/ListProductDuplicate";
+
 
 const { Header: AntHeader, Content, Sider } = Layout;
 
+export const ChainNameContext = createContext()
 const Main = () => {
+  const [chainName, setChainName] = useState('ethereum')
   const [visible, setVisible] = useState(false);
   const [sidenavColor, setSidenavColor] = useState("#1890ff");
   const [sidenavType, setSidenavType] = useState("transparent");
@@ -34,6 +39,12 @@ const Main = () => {
   const handleSidenavColor = (color) => setSidenavColor(color);
   const handleFixedNavbar = (type) => setFixed(type);
 
+  const stateContext = {
+    chainName: chainName,
+    handleSetChainName: (chainName) => {
+      setChainName(chainName)
+    }
+  }
   let { pathname } = useLocation();
   pathname = pathname.replace("/", "");
 
@@ -93,34 +104,40 @@ const Main = () => {
           )}
         </div>
         <Content className="content-ant" style={{ overflowY: 'auto', position: 'sticky', overflowX: 'hidden' }}>
-          <Routes>
-            <Route path='' element={<Home />} />
-            <Route path='dashboard' element={<Home />} />
-            <Route path='users' element={<User />} />
-            <Route path='reviews'>
-              <Route path='' element={<Reviews />} />
-              <Route path=':reviewId/detail' element={<DetailReview />} />
-            </Route>
-            <Route path='products'>
-              <Route path='' element={<Products />} />
-              <Route path=':productId' element={<DetailProduct />} />
-              <Route path=':productId/reviews/report' element={<Report />} />
-              <Route path='add-product' element={<AddProduct />} />
-            </Route>
-            <Route path='tokens'>
-              <Route path='' element={<Tokens />} />
-              {/* <Route path=':tokenId' element={<DetailProduct />} /> */}
-              {/* <Route path=':tokenId/reviews/report' element={<Report />} /> */}
-              {/* <Route path='add-product' element={<AddProduct />} /> */}
-            </Route>
-            <Route path='monitor'>
-              <Route path='' element={<Monitor />} />
-              <Route path='add-service' element={<AddService />} />
-            </Route>
-            <Route path='*' element={<NotFound />} />
-          </Routes>
+          <ChainNameContext.Provider value={stateContext}>
+            <Routes>
+              <Route path='' element={<Home />} />
+              <Route path='dashboard' element={<Home />} />
+              <Route path='users' element={<User />} />
+              <Route path='reviews'>
+                <Route path='' element={<Reviews />} />
+                <Route path=':reviewId/detail' element={<DetailReview />} />
+              </Route>
+              <Route path='duplicate'>
+                <Route path='' element={<Duplicate />} />
+                <Route path=':chainName' element={<ListProductDuplicate />} />
+              </Route>
+              <Route path='products'>
+                <Route path='' element={<Products />} />
+                <Route path=':productId' element={<DetailProduct />} />
+                <Route path=':productId/reviews/report' element={<Report />} />
+                <Route path='add-product' element={<AddProduct />} />
+              </Route>
+              <Route path='tokens'>
+                <Route path='' element={<Tokens />} />
+                {/* <Route path=':tokenId' element={<DetailProduct />} /> */}
+                {/* <Route path=':tokenId/reviews/report' element={<Report />} /> */}
+                {/* <Route path='add-product' element={<AddProduct />} /> */}
+              </Route>
+              <Route path='monitor'>
+                <Route path='' element={<Monitor />} />
+                <Route path='add-service' element={<AddService />} />
+              </Route>
+              <Route path='*' element={<NotFound />} />
+            </Routes>
+          </ChainNameContext.Provider>
         </Content>
-        <Footer />
+        {/* <Footer /> */}
       </Layout>
       <SignIn
         openModal={openModal}

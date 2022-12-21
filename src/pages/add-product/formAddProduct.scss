@@ -20,13 +20,43 @@
         & form{
             padding: 20px;
         }
+        &-new{
+            display: flex;
+            align-items: center;
+            width: calc(100% - 200px);
+            &-item{
+                width: 100%;
+            }
+        }
         &-item{
             display: flex;
             align-items: flex-start;
+            justify-content: space-between;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
+            &-content{
+                width: calc(100% - 200px);
+                & .ant-image{
+                    border: 0.5px solid rgba(0, 0, 0, 0.2);
+                    border-radius: 50%;
+                    & img{
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        border-radius: 50%;
+                    }
+                }
+            }
+            & .form-add-item{
+                margin-bottom: 0;
+            }
             &-label{
-                width: 300px;
+                width: 180px;
+                font-weight: 600;
+                & .ant-form-item{
+                    margin-bottom: 0;
+                    width: 100%;
+                }
             }
             & .ant-form-item{
                 margin-bottom: 0;

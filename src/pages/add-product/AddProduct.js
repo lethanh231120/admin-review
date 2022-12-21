@@ -3,7 +3,7 @@ import { Row, Col, Form, Input, Radio, Button, Space, Select, Checkbox, Card } f
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { get, post } from '../../api/products'
 import { regexFloatNumber } from '../../utils/regex'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getCookie, STORAGEKEY } from '../../utils/storage'
 
 import './formAddProduct.scss'
@@ -12,41 +12,51 @@ const { Option } = Select
 const { TextArea } = Input
 
 const defaultValue = [
+    { name: 'type', value: '' },
     { name: 'address', value: '' },
     { name: 'chainId', value: '' },
-    { name: 'decimals', value: '' },
-    { name: 'image', value: '' },
-    // { name: 'isVerify', value: false },
-    { name: 'marketCap', value: '' },
-    { name: 'maxSupply', value: '' },
-    { name: 'name', value: '' },
+    { name: 'chainName', value: '' },
     { name: 'symbol', value: '' },
-    { name: 'totalSupply', value: '' },
-    { name: 'type', value: '' },
-    { name: 'volumeTrading', value: '' },
+    { name: 'name', value: '' },
     { name: 'category', value: 'Crypto Projects' },
-    { name: 'newCategory', value: '' },
     { name: 'subCategory', value: [] },
+    { name: 'newCategory', value: '' },
     { name: 'newSubCategory', value: [] },
-    { name: 'founders', value: [] },
-    { name: 'funds', value: [] },
-    { name: ['detail', 'description'], value: '' },
-    { name: ['detail', 'holders'], value: '' },
-    { name: ['detail', 'sourceCode'], value: '' },
-    { name: ['detail', 'website'], value: '' },
-    { name: 'moreInfo', value: [] },
-    { name: ['community', 'discord'], value: '' },
-    { name: ['community', 'facebook'], value: '' },
-    { name: ['community', 'telegram'], value: '' },
-    { name: ['community', 'instagram'], value: '' },
-    { name: ['community', 'twitter'], value: '' },
+    { name: 'image', value: '' },
+    { name: 'desc', value: '' },
+    { name: 'isWarning', value: false },
+    { name: 'isshow', value: false },
     { name: ['evaluate', 'isScam'], value: false },
     { name: ['evaluate', 'reason'], value: '' },
     { name: ['evaluate', 'sources'], value: [] },
     { name: ['evaluate', 'userId'], value: '' },
     { name: ['evaluate', 'userName'], value: [] },
     { name: ['evaluate', 'userRole'], value: [] },
-    { name: ['evaluate', 'isVerify'], value: false }
+    { name: ['evaluate', 'isVerify'], value: false },
+    { name: ['detail', 'marketcap'], value: '' },
+    { name: ['detail', 'totalSupply'], value: '' },
+    { name: ['detail', 'maxSupply'], value: '' },
+    { name: ['detail', 'volumeTrading'], value: '' },
+    { name: ['detail', 'holder'], value: '' },
+    { name: 'contract', value: [] },
+    { name: 'moreInfo', value: [] },
+    { name: 'founders', value: [] },
+    { name: 'funds', value: [] },
+    { name: ['community', 'facebook'], value: [] },
+    { name: ['community', 'twitter'], value: [] },
+    { name: ['community', 'discord'], value: [] },
+    { name: ['community', 'telegram'], value: [] },
+    { name: ['community', 'instagram'], value: [] },
+    { name: ['community', 'youtube'], value: [] },
+    { name: 'communities', value: [] },
+    { name: ['sourceCode', 'bitbucket'], value: [] },
+    { name: ['sourceCode', 'github'], value: [] },
+    { name: 'sourceCodes', value: [] },
+    { name: 'decimals', value: [] },
+    { name: 'websites', value: [] },
+    { name: ['website', 'announcement'], value: [] },
+    { name: ['website', 'blockchainSite'], value: [] },
+    { name: ['website', 'homepage'], value: [] }
 ]
 
 const AddProduct = () => {
@@ -61,14 +71,41 @@ const AddProduct = () => {
   const [categories, setCategories] = useState([])
   const [subCategories, setSubCategories] = useState([])
   const [defaultCategory, setDefaultCategory] = useState(1)
+  const [params, setParams] = useState([])
+
+
+  const TYPE_CHOOSE_CATEGORY = 'choose category'
+  const TYPE_ADD_CATEGORY = 'add category'
+  const [typeCategory, setTypeCategory] = useState(TYPE_CHOOSE_CATEGORY)
+  const [disableSubCategory, setDisableSubCategory] = useState('')
 
   console.log(userInfo)
   const onFinish = async(values) => {
+    console.log('values', values)
     const regex = /^[0-9]*$/
-    const { detail, community, moreInfo, evaluate, category, subCategory, funds, founders, ...rest } = values
+    const {
+        communities,
+        community,
+        decimals,
+        detail,
+        // evaluate,
+        founders,
+        funds,
+        sourceCode,
+        sourceCodes,
+        moreInfo,
+        category,
+        subCategory,
+        // contract,
+        symbol,
+        website,
+        websites,
+        ...rest
+    } = values
     let body = {}
     const listSub = []
 
+    console.log(values)
     subCategory?.forEach((item) => {
         if (item.match(regex)) {
             const newItem = subCategories?.find((itemSub) => itemSub?.id === parseInt(item))
@@ -77,24 +114,49 @@ const AddProduct = () => {
             listSub.push(`new:${item}`)
         }
     })
+
+    const newCommunity = { ...community }
+    communities?.forEach((item) => {
+        newCommunity[`${item?.key}`] = item?.value
+    })
+
+    const newDecimals = {}
+    decimals?.forEach((item) => {
+        newDecimals[`${item?.chain}`] = {
+            'contract_address': item?.contract_address,
+            'decimal_place': item?.decimal_place
+        }
+    })
+
+    const newSource = { ...sourceCode }
+    sourceCodes?.forEach((item) => {
+        newSource[`${item?.key}`] = item?.value
+    })
+
+    const newWebsite = { ...website }
+    websites?.forEach((item) => {
+        newWebsite[`${item?.key}`] = item?.value
+    })
+
     if (category === undefined) {
         body = {
             ...rest,
             category: '',
             subCategory: [],
+            symbol: symbol?.toLowerCase(),
+            userId: userInfo?.id,
+            userName: userInfo?.userName,
+            userRole: `${userInfo?.userrole}`,
             detail:  {
                 ...detail,
-                community: community,
+                community: newCommunity,
+                decimals: newDecimals,
+                sourceCode: newSource,
+                website: newWebsite,
                 moreInfo: moreInfo,
                 funds: funds,
                 founders: founders
             },
-            evaluate: {
-                ...evaluate,
-                userId: 1,
-                userName: 'lethanh',
-                userRole: 'admin'
-            }
         }
     } else {
         body = {
@@ -103,24 +165,30 @@ const AddProduct = () => {
             newCategory: "",
             subCategory: listSub,
             newSubCategory: [],
+            symbol: symbol?.toLowerCase(),
+            userId: userInfo?.id,
+            userName: userInfo?.userName,
+            userRole: `${userInfo?.userrole}`,
             detail:  {
                 ...detail,
-                community: community,
+                community: newCommunity,
+                decimals: newDecimals,
+                sourceCode: newSource,
+                website: newWebsite,
                 moreInfo: moreInfo,
                 funds: funds,
                 founders: founders
             },
-            evaluate: {
-                ...evaluate,
-                userId: 1,
-                userName: 'lethanh',
-                userRole: 'admin'
-            }
         }
     }
     console.log(body)
-    await post('reviews/research/add-product', body)
-    navigate('../../products')
+    await post('reviews/product/add', body)
+    navigate('../../dashboard')
+  }
+
+  const handleChangeCategory = (value) => {
+    const category = categories?.find((item) => item?.name === value)
+    setDefaultCategory(category?.id)
   }
 
   const handleChangeType = (value) => {
@@ -146,6 +214,19 @@ const AddProduct = () => {
     }
     getSubCategory()
   }, [defaultCategory])
+
+  useEffect(() => {
+    const getParams = async() => {
+        const tokens = await get(`reviews/product/list-value-fields`)
+        const chainName = tokens?.data?.chainName?.filter((item) => item !== '')
+        const newParams = {
+            ...tokens?.data,
+            chainName: chainName,
+        }
+        setParams(newParams)
+    }
+    getParams()
+  }, [])
 
   return (
     <div className='form-add'>
@@ -192,6 +273,24 @@ const AddProduct = () => {
                         <div className='form-add-item-label'>Chain ID:</div>
                         <Form.Item name="chainId">
                             <Input type='number'/>
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Chain Name:</div>
+                        <Form.Item name="chainName">
+                            <Select
+                                placeholder="Chain name"
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                filterSort={(optionA, optionB) =>
+                                    (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                }
+                                options={params?.chainName?.map((item) => ({
+                                    value: item,
+                                    label: item,
+                                }))}
+                            />
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
@@ -282,87 +381,31 @@ const AddProduct = () => {
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
-                        <div className='form-add-item-label'>Decimal:</div>
-                        <Form.Item name="decimals">
-                            <Input type='number'/>
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Market Cap:</div>
-                        <Form.Item
-                            name="marketCap"
-                            rules={[
-                                {
-                                    message: 'Enter a valid market cap!',
-                                    pattern: new RegExp(regexFloatNumber)
-                                }
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Total Supply:</div>
-                        <Form.Item
-                            name="totalSupply"
-                            rules={[
-                            {
-                                message: 'Enter a valid total supply!',
-                                pattern: new RegExp(regexFloatNumber)
-                            }
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Max Supply:</div>
-                        <Form.Item
-                            name="maxSupply"
-                            rules={[
-                                {
-                                    message: 'Enter a valid max supply!',
-                                    pattern: new RegExp(regexFloatNumber)
-                                }
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Volumn Trading:</div>
-                        <Form.Item
-                            name="volumeTrading"
-                            rules={[
-                                {
-                                    message: 'Enter a valid volumn trading!',
-                                    pattern: new RegExp(regexFloatNumber)
-                                }
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Link Image Project:</div>
+                        <div className='form-add-item-label'>Link Image:</div>
                         <Form.Item
                             name="image"
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url image!',
-                                }
-                            ]}
                         >
                             <Input placeholder='https://'/>
                         </Form.Item>
                     </div>
-                    {/* <div className='form-add-item'>
-                        <div className='form-add-item-label'>Verify:</div>
-                        <Form.Item name="isVerify" valuePropName="checked">
-                            <Checkbox>Verify</Checkbox>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Description:</div>
+                        <Form.Item name='desc'>
+                            <TextArea placeholder="Enter Description" rows={4}/>
                         </Form.Item>
-                    </div> */}
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Warning:</div>
+                        <Form.Item name="isWarning" valuePropName="checked">
+                            <Checkbox>Warning</Checkbox>
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Show:</div>
+                        <Form.Item name="isshow" valuePropName="checked">
+                            <Checkbox>Show</Checkbox>
+                        </Form.Item>
+                    </div>
                 </Card>
 
                 {/* <Card
@@ -434,6 +477,73 @@ const AddProduct = () => {
                     </Form.List>
                 </Card> */}
 
+                {/* contract */}
+                <Card
+                    title={<span className='form-add-card-title'>Contract</span>}
+                    bordered={true}
+                >
+                    <Form.List name="contract">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <Row key={key} gutter={24} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Col span={23}>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Chain Name:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'chainName']}
+                                                rules={[
+                                                    {
+                                                    required: true,
+                                                    message: 'Missing name',
+                                                    },
+                                                ]}
+                                            >
+                                                <Input placeholder="Enter Founder Name" />
+                                            </Form.Item>
+                                        </div>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Chain ID:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'chainId']}
+                                                rules={[
+                                                    {
+                                                    required: true,
+                                                    message: 'Missing name',
+                                                    },
+                                                ]}
+                                            >
+                                                <Input placeholder="Enter chain id" />
+                                            </Form.Item>
+                                        </div>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>address:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'address']}
+                                            >
+                                                <Input placeholder="Enter address" />
+                                            </Form.Item>
+                                        </div>
+                                    </Col>
+                                    <Col span={1}>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </Col>
+                                </Row>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Contract
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
+                </Card>
+
+                {/* more info */}
                 <Card
                     title={<span className='form-add-card-title'>More Info</span>}
                     bordered={true}
@@ -487,7 +597,8 @@ const AddProduct = () => {
                         </Col>
                     </Row>
                 </Card>
-        
+
+                {/* founders */}
                 <Card
                     title={<span className='form-add-card-title'>Founder</span>}
                     bordered={true}
@@ -541,6 +652,7 @@ const AddProduct = () => {
                     </Form.List>
                 </Card>
                 
+                {/* funds */}
                 <Card
                     title={<span className='form-add-card-title'>Funds</span>}
                     bordered={true}
@@ -597,14 +709,47 @@ const AddProduct = () => {
                     </Form.List>
                 </Card>
                 
+                {/* // detail */}
                 <Card
                     title={<span className='form-add-card-title'>Project Detail</span>}
                     bordered={true}
                 >
                     <div className='form-add-item'>
+                        <div className='form-add-item-label'>Market Cap:</div>
+                        <Form.Item
+                            name={['detail', 'marketcap']}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Total Supply:</div>
+                        <Form.Item
+                            name={['detail', 'totalSupply']}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Max Supply:</div>
+                        <Form.Item
+                            name={['detail', 'maxSupply']}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Volumn Trading:</div>
+                        <Form.Item
+                            name={['detail', 'volumeTrading']}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
                         <div className='form-add-item-label'>Holders:</div>
                         <Form.Item
-                            name={['detail', 'holders']}
+                            name={['detail', 'holder']}
                             rules={[
                                 {
                                     message: 'Enter a valid number holder!',
@@ -615,42 +760,9 @@ const AddProduct = () => {
                             <Input placeholder="Enter Holders" />
                         </Form.Item>
                     </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Website:</div>
-                        <Form.Item
-                            name={['detail', 'website']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url website!',
-                                }
-                            ]}
-                        >
-                            <Input placeholder='https://'/>
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Source Code:</div>
-                        <Form.Item
-                            name={['detail', 'sourceCode']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url source sode!',
-                                }
-                            ]}
-                        >
-                            <Input placeholder="https://"/>
-                        </Form.Item>
-                    </div>
-                    <div className='form-add-item'>
-                        <div className='form-add-item-label'>Description:</div>
-                        <Form.Item name={['detail', 'description']}>
-                            <TextArea placeholder="Enter Description" rows={4}/>
-                        </Form.Item>
-                    </div>
                 </Card>
         
+                {/* community */}
                 <Card
                     title={<span className='form-add-card-title'>Community</span>}
                     bordered={true}
@@ -659,72 +771,362 @@ const AddProduct = () => {
                         <div className='form-add-item-label'>Facebook:</div>
                         <Form.Item
                             name={['community', 'facebook']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url facebook!',
-                                }
-                            ]}
                         >
-                            <Input placeholder="https://" />
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Twitter:</div>
                         <Form.Item
                             name={['community', 'twitter']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url twitter!',
-                                }
-                            ]}
                         >
-                            <Input placeholder="https://" />
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Discord:</div>
                         <Form.Item
                             name={['community', 'discord']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url discord!',
-                                }
-                            ]}
                         >
-                            <Input placeholder="https://" />
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Telegram:</div>
                         <Form.Item
                             name={['community', 'telegram']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url telegram!',
-                                }
-                            ]}
                         >
-                            <Input placeholder="https://" />
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
                         </Form.Item>
                     </div>
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Instagram:</div>
                         <Form.Item
                             name={['community', 'instagram']}
-                            rules={[
-                                {
-                                    type: 'url',
-                                    message: 'Enter a valid url instagram!',
-                                }
-                            ]}
                         >
-                            <Input placeholder="https://" />
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
                         </Form.Item>
                     </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Youtube:</div>
+                        <Form.Item
+                            name={['community', 'youtube']}
+                        >
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <Form.List name="communities">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <div className='form-add-item'>
+                                    <div className='form-add-item-label'>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            rules={[
+                                                {
+                                                required: true,
+                                                message: 'Missing key',
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Enter key" />
+                                        </Form.Item>
+                                    </div>
+                                    <div className='form-add-new'>
+                                        <div className='form-add-new-item'>
+                                            <div className='form-add-item'>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'value']}
+                                                    rules={[
+                                                        {
+                                                        required: true,
+                                                        message: 'Missing value',
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Select
+                                                        placeholder="Enter Link url"
+                                                        mode="tags"
+                                                    />
+                                                </Form.Item>
+                                            </div>
+                                        </div>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </div>
+                                </div>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Community
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
+                </Card>
+
+                {/* source code */}
+                <Card
+                    title={<span className='form-add-card-title'>Source Code</span>}
+                    bordered={true}
+                >
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Bit Bucket:</div>
+                        <Form.Item
+                            name={['sourceCode', 'bitbucket']}
+                        >
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Github:</div>
+                        <Form.Item
+                            name={['sourceCode', 'github']}
+                        >
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <Form.List name="sourceCodes">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <div className='form-add-item'>
+                                    <div className='form-add-item-label'>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            rules={[
+                                                {
+                                                required: true,
+                                                message: 'Missing key',
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Enter key" />
+                                        </Form.Item>
+                                    </div>
+                                    <div className='form-add-new'>
+                                        <div className='form-add-new-item'>
+                                            <div className='form-add-item'>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'value']}
+                                                    rules={[
+                                                        {
+                                                        required: true,
+                                                        message: 'Missing value',
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Select
+                                                        placeholder="Enter Link url"
+                                                        mode="tags"
+                                                    />
+                                                </Form.Item>
+                                            </div>
+                                        </div>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </div>
+                                </div>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Source Code
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
+                </Card>
+                
+                {/* decimals */}
+                <Card
+                    title={<span className='form-add-card-title'>Decimals</span>}
+                    bordered={true}
+                >
+                    <Form.List name="decimals">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <Row key={key} gutter={24} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Col span={23}>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Chain Name:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'chain']}
+                                                rules={[
+                                                    {
+                                                    required: true,
+                                                    message: 'Missing chain name',
+                                                    },
+                                                ]}
+                                            >
+                                            <Input placeholder="Enter chain name" />
+                                        </Form.Item>
+                                        </div>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Contract Address:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'contract_address']}
+                                                rules={[
+                                                    {
+                                                    required: true,
+                                                    message: 'Missing contract address',
+                                                    },
+                                                ]}
+                                            >
+                                                <Input placeholder="Enter contract address"/>
+                                            </Form.Item>
+                                        </div>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Decimal:</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'decimal_place']}
+                                                rules={[
+                                                    {
+                                                    required: true,
+                                                    message: 'Missing decimal',
+                                                    },
+                                                ]}
+                                            >
+                                                <Input placeholder="Enter decimal"/>
+                                            </Form.Item>
+                                        </div>
+                                    </Col>
+                                    <Col span={1}>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </Col>
+                                </Row>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Decimal
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
+                </Card>
+                
+                {/* website */}
+                <Card
+                    title={<span className='form-add-card-title'>Website</span>}
+                    bordered={true}
+                >
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Announcement:</div>
+                        <Form.Item
+                            name={['website', 'announcement']}
+                        >
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Blockchain Site:</div>
+                        <Form.Item
+                            name={['website', 'blockchainSite']}
+                        >
+                            <Select
+                                placeholder="Enter link blockchain site"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <div className='form-add-item'>
+                        <div className='form-add-item-label'>Homepage:</div>
+                        <Form.Item
+                            name={['website', 'homepage']}
+                        >
+                            <Select
+                                placeholder="Enter Link url"
+                                mode="tags"
+                            />
+                        </Form.Item>
+                    </div>
+                    <Form.List name="websites">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <div className='form-add-item'>
+                                    <div className='form-add-item-label'>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            rules={[
+                                                {
+                                                required: true,
+                                                message: 'Missing key',
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Enter key" />
+                                        </Form.Item>
+                                    </div>
+                                    <div className='form-add-new'>
+                                        <div className='form-add-new-item'>
+                                            <div className='form-add-item'>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'value']}
+                                                    rules={[
+                                                        {
+                                                        required: true,
+                                                        message: 'Missing value',
+                                                        },
+                                                    ]}
+                                                >
+                                                    <Select
+                                                        placeholder="Enter Link url"
+                                                        mode="tags"
+                                                    />
+                                                </Form.Item>
+                                            </div>
+                                        </div>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </div>
+                                </div>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Source Code
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
                 </Card>
 
                 <Card
