@@ -20,13 +20,16 @@ const ListProductDuplicate = () => {
   const [reload, setReload] = useState(false)
 
   useEffect(() => {
+    setLoading(true)
     const getData = async() => {
         const params = {
             name: state?.record?.name?.toLowerCase(),
             // address: state?.record?.address?.toLowerCase(),
             symbol: state?.record?.symbol?.toLowerCase(),
             page: 1,
-            chainName: state?.record?.chainName?.toLowerCase()
+            chainName: state?.record?.chainName?.toLowerCase(),
+            scam: false,
+            warning: false
         }
         const dataDuplicate = await get('reviews/product/filter', params)
         setListDataDuplicate(dataDuplicate?.data?.products)
@@ -46,13 +49,8 @@ const ListProductDuplicate = () => {
     })
   }
 
-  const handleNewTab = (e, record) => {
-    e.stopPropagation()
-    const domain = window.location.origin
-    window.open(`${domain}/products/${record?.id}`, '_blank', 'noopener,noreferrer')
-  }
-
   const handleWarning = async(e, record) => {
+    setLoading(true)
     e.stopPropagation()
     await patch(`reviews/product/isWarning/productId=${record?.id}`)
     const itemInListData = listDataDuplicate?.findIndex((item) => item?.id === record?.id)
@@ -61,7 +59,12 @@ const ListProductDuplicate = () => {
         ...listDataDuplicate[itemInListData],
         isWarning: !newListData[itemInListData]?.isWarning
     }
+    setLoading(false)
     setListDataDuplicate(newListData)
+    message.success({
+        content: `Report warning for ${record?.name ? record?.name : record?.id} successfully`,
+        duration: 3
+    })
   }
   
   const handleScam = async(e, record) => {
@@ -74,12 +77,20 @@ const ListProductDuplicate = () => {
         isScam: !newListData[itemInListData]?.isScam
     }
     setListDataDuplicate(newListData)
+    message.success({
+        content: `Report scam for ${record?.name ? record?.name : record?.id} successfully`,
+        duration: 3
+    })
   }
 
   const handleDeleteProduct = async(e, record) => {
     e.stopPropagation()
     await del(`reviews/product/productId=${record?.id}`)
     setReload(true)
+    message.success({
+        content: `Delete ${record?.name ? record?.name : record?.id} successfully`,
+        duration: 3
+    })
   }
 
   const columns = [
@@ -93,32 +104,32 @@ const ListProductDuplicate = () => {
     {
         title: "Product Name",
         dataIndex: "name",
-        render: (_, record) => <span onClick={(e) => handleNewTab(e, record)}>
-        <Avatar.Group>
-            {record?.image  ? (
-                <Avatar
-                    className="shape-avatar"
-                    shape="square"
-                    size={40}
-                    src={record?.image}
-                />
-            ) : (
-              <span className='table-icon-coin-logo'>
-                {(record?.symbol !== null)
-                  ? record?.symbol?.slice(0, 3)?.toUpperCase()
-                  : (record?.name !== null)
-                    ? record?.name?.slice(0, 3)?.toUpperCase()
-                    : ''}
-              </span>
-            )}
-            <div className="avatar-info">
-                <Title level={5}>{record?.name}</Title>
-                {record?.symbol && (
-                    <div className='avatar-info-symbol'>{record?.symbol ? record?.symbol : ''}</div>
+        render: (_, record) => <a href={`../../products/${record?.id}`} rel="noreferrer">
+            <Avatar.Group>
+                {record?.image  ? (
+                    <Avatar
+                        className="shape-avatar"
+                        shape="square"
+                        size={40}
+                        src={record?.image}
+                    />
+                ) : (
+                <span className='table-icon-coin-logo'>
+                    {(record?.symbol !== null)
+                    ? record?.symbol?.slice(0, 3)?.toUpperCase()
+                    : (record?.name !== null)
+                        ? record?.name?.slice(0, 3)?.toUpperCase()
+                        : ''}
+                </span>
                 )}
-            </div>
-        </Avatar.Group>
-        </span>
+                <div className="avatar-info">
+                    <Title level={5}>{record?.name}</Title>
+                    {record?.symbol && (
+                        <div className='avatar-info-symbol'>{record?.symbol ? record?.symbol : ''}</div>
+                    )}
+                </div>
+            </Avatar.Group>
+        </a>
     },
     {
         title: 'Show',

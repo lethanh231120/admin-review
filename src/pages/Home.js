@@ -9,6 +9,7 @@ import './styles/product.scss'
 
 const { Content } = Layout
 const { Title } = Typography;
+const { Option } = Select
 
 const dataDefault = [
   { name: 'name', value: '' },
@@ -54,9 +55,21 @@ const Home = () => {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [dataSearch, setDataSearch] = useState()
-  const [paramsSearch, setParamSearch] = useState()
+  const [paramsSearch, setParamSearch] = useState({
+    type: '',
+    src: '',
+    category: '',
+    show: true,
+    scam: false,
+    chainName: '',
+    page: 1,
+    name: '',
+    symbol: '',
+    address: ''
+  })
   const [total, setTotal] = useState(1)
   const [isSearch, setIsSearch] = useState(false)
+  const [disabledBtn, setDisableBtn] = useState(false)
 
 
   const getAll = async() => {
@@ -76,33 +89,37 @@ const Home = () => {
       setDataSearch(dataSearch?.data?.products)
       setIsSearch(true)
       setTotal(dataSearch?.data?.count)
-      setLoading(false)
       setReloadProduct(false)
       setDefaultValue(dataDefault)
+      setLoading(false)
     }
   }
 
   const onFinish = async(values) => {
     setLoading(true)
-    const params = {
-      ...values,
-      name: values?.name?.toLowerCase(),
-      symbol: values?.symbol?.toLowerCase(),
-      address: values?.address?.toLowerCase(),
-      category: values?.category !== undefined ? values?.category?.toLowerCase() : '',
-      chainName: values?.chainName !== undefined ? values?.chainName : '',
-      src: values?.src !== undefined ? values?.src : '',
-      type: values?.type !== undefined ? values?.type : '',
-      page: page,
+    if (values?.address === '' && values?.category === undefined && values?.type === undefined && values?.src === undefined && values?.chainName === undefined && !values?.scam && !values?.show && values?.symbol === '' && values?.name === '') {
+      getAll()
+    } else {
+      const params = {
+        ...values,
+        name: values?.name?.toLowerCase(),
+        symbol: values?.symbol?.toLowerCase(),
+        address: values?.address?.toLowerCase(),
+        category: values?.category !== undefined ? values?.category?.toLowerCase() : '',
+        chainName: values?.chainName !== undefined ? values?.chainName : '',
+        src: values?.src !== undefined ? values?.src : '',
+        type: values?.type !== undefined ? values?.type : '',
+        page: 1,
+      }
+      setParamSearch({
+        ...values,
+        address: values?.address?.toLowerCase(),
+        category: values?.category?.toLowerCase(),
+        page: 1
+      })
+      getDataSearch(params)
     }
-    setParamSearch({
-      ...values,
-      address: values?.address?.toLowerCase(),
-      category: values?.category?.toLowerCase(),
-      page: 1
-    })
-    getDataSearch(params)
-    form.resetFields()
+    // form.resetFields()
   }
 
   const handleResetForm = () => {
@@ -122,13 +139,37 @@ const Home = () => {
         }
         const unique = types?.flat(1)?.filter(onlyUnique)
 
-        const src = tokens?.data?.src?.filter((item) => item !== '')
-        const category = tokens?.data?.category?.filter((item) => item !== '')
-        const chainName = tokens?.data?.chainName?.filter((item) => item !== '')
+        const chains = []
+        tokens?.data?.chainName?.forEach((item) => {
+          if (item !== '') {
+            chains.push({
+              value: item,
+              label: item
+            })
+          }
+        })
+        const srcs = []
+        tokens?.data?.src?.forEach((item) => {
+          if (item !== '') {
+            srcs.push({
+              value: item,
+              label: item
+            })
+          }
+        })
+        const categories = []
+        tokens?.data?.category?.forEach((item) => {
+          if (item !== '') {
+            categories.push({
+              value: item,
+              label: item
+            })
+          }
+        })
         const newParams = {
-            src: src,
-            category: category,
-            chainName: chainName,
+            src: [ { value: '', label: 'All' }, ...srcs ],
+            category: [ { value: '', label: 'All' }, ...categories ],
+            chainName: [ { value: '', label: 'All' }, ...chains ],
             type: unique
         }
         setParams(newParams)
@@ -149,15 +190,32 @@ const Home = () => {
     setLoading(true)
     if (isSearch) {
       getDataSearch(paramsSearch)
-    } else {
-      getAll()
     }
-  }, [reloadProduct])
+  }, [isSearch, reloadProduct, paramsSearch])
 
   // get data all
   useEffect(() => {
+    setLoading(true)
+    console.log(isSearch)
     !isSearch && getAll()
   }, [page, isSearch])
+
+  const handleClickSearch = (value) => {
+    setParamSearch({
+      ...paramsSearch,
+      ...value
+    })
+  }
+
+  // const handleChangeFields = (field, all) => {
+  //   if (all?.address === '' && all?.category === undefined && all?.type === undefined && all?.src === undefined && all?.chainName === undefined && !all?.scam && !all?.show && all?.symbol === '' && all?.name === '') {
+  //     setDisableBtn(true)
+  //     setLoading(true)
+  //     getAll()
+  //   } else {
+  //     setDisableBtn(false)
+  //   }
+  // }
 
   return (
     <>
@@ -165,7 +223,7 @@ const Home = () => {
         {metric && (
           <Row className="rowgap-vbox" gutter={[24, 0]} style={{ padding: '1rem' }}>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox" onClick={() => handleClickSearch({ type: 'token' })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -182,7 +240,7 @@ const Home = () => {
               </Card>
             </Col>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox " onClick={() => handleClickSearch({ type: 'ico' })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -199,7 +257,7 @@ const Home = () => {
               </Card>
             </Col>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox " onClick={() => handleClickSearch({ type: 'project' })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -216,7 +274,7 @@ const Home = () => {
               </Card>
             </Col>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox " onClick={() => handleClickSearch({ type: 'coin' })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -233,7 +291,7 @@ const Home = () => {
               </Card>
             </Col>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox " onClick={() => handleClickSearch({ category: 'other' })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -250,7 +308,7 @@ const Home = () => {
               </Card>
             </Col>
             <Col xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
-              <Card bordered={false} className="criclebox ">
+              <Card bordered={false} className="criclebox " onClick={() => handleClickSearch({ scam: true })}>
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
@@ -312,6 +370,7 @@ const Home = () => {
                       extra={
                         <>
                           <Button
+                              disabled={loading}
                               type='primary'
                               onClick={() => navigate('../products/add-product')}
                           >
@@ -334,11 +393,13 @@ const Home = () => {
                                 form={form}
                                 onFinish={onFinish}
                                 fields={defaultValue}
+                                // onValuesChange={handleChangeFields}
                               >
                                 <Row gutter={24}>
                                   <Col span={8}>
                                       <Form.Item name="name">
                                           <Input
+                                            disabled={loading}
                                             placeholder='Enter token name'
                                           />
                                       </Form.Item>
@@ -346,6 +407,7 @@ const Home = () => {
                                   <Col span={8}>
                                       <Form.Item name="symbol">
                                           <Input
+                                            disabled={loading}
                                             placeholder='Enter token symbol'
                                           />
                                       </Form.Item>
@@ -353,6 +415,7 @@ const Home = () => {
                                   <Col span={8}>
                                       <Form.Item name="address">
                                           <Input
+                                            disabled={loading}
                                             placeholder='Enter address'
                                           />
                                       </Form.Item>
@@ -368,9 +431,10 @@ const Home = () => {
                                                   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                               }
                                               options={params?.src?.map((item) => ({
-                                                  value: item,
-                                                  label: item,
+                                                value: item?.value,
+                                                label: item?.label,
                                               }))}
+                                              disabled={loading}
                                           />
                                       </Form.Item>
                                   </Col>
@@ -385,9 +449,10 @@ const Home = () => {
                                                   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                               }
                                               options={params?.category?.map((item) => ({
-                                                  value: item,
-                                                  label: item,
+                                                value: item?.value,
+                                                label: item?.label,
                                               }))}
+                                              disabled={loading}
                                           />
                                       </Form.Item>
                                   </Col>
@@ -401,11 +466,13 @@ const Home = () => {
                                               filterSort={(optionA, optionB) =>
                                                   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                               }
-                                              options={params?.type?.map((item) => ({
-                                                  value: item,
-                                                  label: item,
-                                              }))}
-                                          />
+                                              disabled={loading}
+                                          >
+                                            <Option value=''>All</Option>
+                                            {params?.type?.map((item) => (
+                                              <Option value={item}>{item}</Option>
+                                            ))}
+                                          </Select>
                                       </Form.Item>
                                   </Col>
                                   <Col span={8}>
@@ -419,27 +486,28 @@ const Home = () => {
                                                   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                               }
                                               options={params?.chainName?.map((item) => ({
-                                                  value: item,
-                                                  label: item,
+                                                  value: item?.value,
+                                                  label: item?.label,
                                               }))}
+                                              disabled={loading}
                                           />
                                       </Form.Item>
                                   </Col>
                                   <Col span={8}>
                                       <Form.Item name="show" valuePropName="checked">
-                                          <Checkbox>Show</Checkbox>
+                                          <Checkbox disabled={loading}>Show</Checkbox>
                                       </Form.Item>
                                   </Col>
                                   <Col span={8}>
                                       <Form.Item name="scam" valuePropName="checked">
-                                          <Checkbox>Scam</Checkbox>
+                                          <Checkbox disabled={loading}>Scam</Checkbox>
                                       </Form.Item>
                                   </Col>
                                 </Row>
                                 <div className='review-button-search'>
                                     <Form.Item>
-                                        <Button type='primary' htmlType='submit'>Search</Button>
-                                        <Button onClick={handleResetForm}>Reset</Button>
+                                        <Button disabled={disabledBtn ? disabledBtn : loading} type='primary' htmlType='submit'>Search</Button>
+                                        <Button disabled={disabledBtn ? disabledBtn : loading} onClick={handleResetForm}>Reset</Button>
                                     </Form.Item>
                                 </div>
                               </Form>
