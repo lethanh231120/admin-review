@@ -72,11 +72,11 @@ function Sidenav({ color }) {
       image: billing,
       label: 'Products'
     },
-    {
-      url: 'tokens',
-      image: billing,
-      label: 'Tokens'
-    },
+    // {
+    //   url: 'tokens',
+    //   image: billing,
+    //   label: 'Tokens'
+    // },
     {
       url: 'monitor',
       image: billing,

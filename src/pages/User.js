@@ -12,54 +12,101 @@ import face5 from "../assets/images/face-5.jpeg";
 const { Title } = Typography
 const { Content } = Layout
   
+const data = [
+  {
+    key: '1',
+    userName: 'Le Thanh',
+    image: face,
+    status: 'active',
+    reliability: true,
+    reviews: 1000,
+    createdDate: '10/10/2022'
+  },
+  {
+    key: '2',
+    userName: 'Le Thanh',
+    image: face2,
+    status: 'active',
+    reliability: true,
+    reviews: 20,
+    createdDate: '10/10/2022'
+  },
+  {
+    key: '3',
+    userName: 'Le Thanh',
+    image: face3,
+    status: 'block',
+    reliability: false,
+    reviews: 10,
+    createdDate: '10/10/2022'
+  },
+  {
+    key: '4',
+    userName: 'Le Thanh',
+    image: face4,
+    status: 'active',
+    reliability: true,
+    reviews: 1000,
+    createdDate: '10/10/2022'
+  },
+  {
+    key: '5',
+    userName: 'Le Thanh',
+    image: face5,
+    status: 'block',
+    reliability: false,
+    reviews: 30,
+    createdDate: '10/10/2022'
+  }
+]
 const User = () => {
-  const [data, setData] = useState([
-    {
-      key: '1',
-      userName: 'Le Thanh',
-      image: face,
-      status: 'active',
-      reliability: true,
-      reviews: 1000,
-      createdDate: '10/10/2022'
-    },
-    {
-      key: '2',
-      userName: 'Le Thanh',
-      image: face2,
-      status: 'active',
-      reliability: true,
-      reviews: 20,
-      createdDate: '10/10/2022'
-    },
-    {
-      key: '3',
-      userName: 'Le Thanh',
-      image: face3,
-      status: 'block',
-      reliability: false,
-      reviews: 10,
-      createdDate: '10/10/2022'
-    },
-    {
-      key: '4',
-      userName: 'Le Thanh',
-      image: face4,
-      status: 'active',
-      reliability: true,
-      reviews: 1000,
-      createdDate: '10/10/2022'
-    },
-    {
-      key: '5',
-      userName: 'Le Thanh',
-      image: face5,
-      status: 'block',
-      reliability: false,
-      reviews: 30,
-      createdDate: '10/10/2022'
-    }
-  ])
+  // const [data, setData] = useState([
+  //   {
+  //     key: '1',
+  //     userName: 'Le Thanh',
+  //     image: face,
+  //     status: 'active',
+  //     reliability: true,
+  //     reviews: 1000,
+  //     createdDate: '10/10/2022'
+  //   },
+  //   {
+  //     key: '2',
+  //     userName: 'Le Thanh',
+  //     image: face2,
+  //     status: 'active',
+  //     reliability: true,
+  //     reviews: 20,
+  //     createdDate: '10/10/2022'
+  //   },
+  //   {
+  //     key: '3',
+  //     userName: 'Le Thanh',
+  //     image: face3,
+  //     status: 'block',
+  //     reliability: false,
+  //     reviews: 10,
+  //     createdDate: '10/10/2022'
+  //   },
+  //   {
+  //     key: '4',
+  //     userName: 'Le Thanh',
+  //     image: face4,
+  //     status: 'active',
+  //     reliability: true,
+  //     reviews: 1000,
+  //     createdDate: '10/10/2022'
+  //   },
+  //   {
+  //     key: '5',
+  //     userName: 'Le Thanh',
+  //     image: face5,
+  //     status: 'block',
+  //     reliability: false,
+  //     reviews: 30,
+  //     createdDate: '10/10/2022'
+  //   }
+  // ])
 
   const [dataSearch, setDataSearch] = useState()
 

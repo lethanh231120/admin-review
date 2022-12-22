@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Avatar, Typography, Button, Tag } from 'antd'
+import { Table, Avatar, Button, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom';
-import { del, get, patch } from '../../api/products';
+import { del, get } from '../../api/products';
 
-const { Title } = Typography
-
-const ListProject = ({ dataSearch }) => {
+const ListProduct = ({ dataSearch }) => {
   const PAGE_SIZE = 20
   const navigate = useNavigate()
   const [total, setTotal] = useState(1)
   const [reloadVerify, setReloadVerify] = useState(false)
-
   const [page, setPage] = useState(1)
-
   const [data, setData] = useState([])
-
-  const handleVerifyProduct = async(e, record) => {
-    e.stopPropagation()
-    await patch(`reviews/research/verify/projectId=${record?.id}`)
-    setReloadVerify(true)
-  }
+  const [loading, setLoading] = useState(true)
 
   const handleDeleteProduct = async(e, record) => {
     e.stopPropagation()
@@ -51,53 +42,51 @@ const ListProject = ({ dataSearch }) => {
                 src={record?.image}
             />
             <div className="avatar-info">
-                <Title level={5}>{record?.name}</Title>
+                <span>{record?.name}</span>
             </div>
         </Avatar.Group>
         </>
     },
     {
-        title: "Market",
-        dataIndex: "marketCap"
-    },
-    {
-        title: "Volumn",
-        dataIndex: "volumeTrading",
-        render: (_, record) => (<span>
-            {record?.volumeTrading}
-        </span>)
-    },
-    {
-        title: "Verify",
+        title: "Type",
         render: (_, record) => (<span
         >
-            <Tag color={record?.isVerify ? 'volcano' : 'geekblue'}>
-                {record?.isVerify ? 'Verify' : 'Pending'}
+            <Tag color={record?.type === 'token' ? 'volcano' : 'geekblue'}>
+                {record?.type}
             </Tag>
         </span>)
     },
     {
-        title: 'Founder',
-        dataIndex: "founder",
+        title: "Chain Name",
+        dataIndex: "chainName",
+        render: (_, record) => (<span>
+            {record?.chainName !== null ? record?.chainName : ''}
+        </span>)
+    },
+    {
+        title: "Address",
+        dataIndex: "address",
+        render: (_, record) => (<span>
+            {record?.type === 'token' ? record?.address : ''}
+        </span>)
+    },
+    {
+        title: 'Total Reviews',
+        dataIndex: "totalReviews",
         render: (_, record) => <>
-            {record?.detail?.founders?.map((item) => <span>{item?.name}</span>)}
+            {record?.detail?.founders?.map((item, index) => <span key={index}>{item?.name}, </span>)}
         </>
     },
     {
-        title: 'Holders',
-        dataIndex: "holders",
-        render: (_, record) => <>{record?.detail?.holders}</>
+        title: 'Scam',
+        dataIndex: "totalIsScam",
+        render: (_, record) => (<span>
+            {record?.totalIsScam !== 'NULL' ? record?.totalIsScam : ''}
+        </span>)
     },
     {
         title: "Action",
         render: (_, record) => (<>
-            <Button
-                type='primary'
-                danger onClick={(e) => handleVerifyProduct(e, record)}
-                style={{ marginRight: '20px' }}
-            >
-                Verify
-            </Button>
             <Button type='primary' danger onClick={(e) => handleDeleteProduct(e, record)}>Delete</Button>
         </>)
     },
@@ -105,10 +94,12 @@ const ListProject = ({ dataSearch }) => {
 
   useEffect(() => {
     const getProducts = async() => {
-        const projects = await get(`reviews/research?page=${page}`)
-        setData(projects?.data?.projects)
-        setTotal(projects?.data?.count)
+        const product = await get(`reviews/product?page=${page}`)
+        console.log(product?.data?.products)
+        setData(product?.data?.products)
+        setTotal(product?.data?.count)
         setReloadVerify(false)
+        setLoading(false)
     }
     getProducts()
   }, [page, reloadVerify])
@@ -121,6 +112,7 @@ const ListProject = ({ dataSearch }) => {
   return (
     <div>
         <Table
+            loading={loading}
             columns={columns}
             dataSource={data}
             pagination={{
@@ -135,9 +127,10 @@ const ListProject = ({ dataSearch }) => {
             onRow={(record) => ({
                 onClick: () => { handleClickItem(record) }
             })}
+            rowKey={(record) => record?.name}
         />
     </div>
   )
 }
 
-export default ListProject
+export default ListProduct

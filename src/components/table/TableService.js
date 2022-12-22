@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { Table, Button, Tooltip, Input } from 'antd'
-import { useNavigate } from 'react-router-dom';
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { del, get, patch } from '../../api/monitor';
 import bitcoin from '../../assets/images/bitcoin.png'
@@ -43,11 +42,8 @@ const data = [
 ]
 const TableService = () => {
     const PAGE_SIZE = 20
-    const navigate = useNavigate()
     const [reloadService, setReloadService] = useState(false)
     const [services, setServices] = useState([])
-    const [openModal, setOpenModal] = useState(false)
-    const [dataModal, setDataModal] = useState()
     const [addEndpoint, setAddEndpoint] = useState({
         isAddEndpoint: false,
         index: '',

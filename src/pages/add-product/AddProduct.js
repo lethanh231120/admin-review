@@ -4,6 +4,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { get, post } from '../../api/products'
 import { regexFloatNumber } from '../../utils/regex'
 import { useNavigate } from 'react-router-dom'
+import { getCookie, STORAGEKEY } from '../../utils/storage'
 
 import './formAddProduct.scss'
 
@@ -50,20 +51,18 @@ const defaultValue = [
 
 const AddProduct = () => {
   const navigate = useNavigate()
+  const userInfo = getCookie(STORAGEKEY.USER_INFO)
   const TYPE_COIN = 'coin'
   const TYPE_TOKEN = 'token'
   const TYPE_PROJECT = 'project'
   const TYPE_ICO = 'ico'
-  const TYPE_CHOOSE_CATEGORY = 'choose category'
-  const TYPE_ADD_CATEGORY = 'add category'
   const [form] = Form.useForm()
   const [openReason, setOpenReason] = useState(false)
-  const [typeCategory, setTypeCategory] = useState(TYPE_CHOOSE_CATEGORY)
   const [categories, setCategories] = useState([])
   const [subCategories, setSubCategories] = useState([])
   const [defaultCategory, setDefaultCategory] = useState(1)
-  const [disableSubCategory, setDisableSubCategory] = useState('')
 
+  console.log(userInfo)
   const onFinish = async(values) => {
     const regex = /^[0-9]*$/
     const { detail, community, moreInfo, evaluate, category, subCategory, funds, founders, ...rest } = values
@@ -140,11 +139,6 @@ const AddProduct = () => {
     getCategory()
   }, [])
 
-  const handleChangeCategory = (value) => {
-    const category = categories?.find((item) => item?.name === value)
-    setDefaultCategory(category?.id)
-  }
-
   useEffect(() => {
     const getSubCategory = async() => {
         const subCategory = await get(`reviews/sub-category/categoryId=${defaultCategory}`)
@@ -168,7 +162,15 @@ const AddProduct = () => {
                 >
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Type:</div>
-                        <Form.Item name="type">
+                        <Form.Item
+                            name="type"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Enter a valid market cap!',
+                                }
+                            ]}
+                        >
                             <Select
                                 placeholder="Please select a type"
                                 onChange={handleChangeType}
@@ -204,7 +206,7 @@ const AddProduct = () => {
                             <Input />
                         </Form.Item>
                     </div>
-                    <div className='form-add-item'>
+                    {/* <div className='form-add-item'>
                         <div className='form-add-item-label'>
                             <div>
                                 <span
@@ -278,7 +280,7 @@ const AddProduct = () => {
                                 />
                             }
                         </Form.Item>
-                    </div>
+                    </div> */}
                     <div className='form-add-item'>
                         <div className='form-add-item-label'>Decimal:</div>
                         <Form.Item name="decimals">
@@ -362,6 +364,76 @@ const AddProduct = () => {
                         </Form.Item>
                     </div> */}
                 </Card>
+
+                <Card
+                    title={<span className='form-add-card-title'>Categories</span>}
+                    bordered={true}
+                >
+                    <Form.List name="categories">
+                        {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => (
+                                <Row key={key} gutter={24} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Col span={23}>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Choose Category</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'category']}
+                                            >
+                                                <Select
+                                                    placeholder="Please select sub category"
+                                                    showSearch
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                                    filterSort={(optionA, optionB) =>
+                                                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                                    }
+                                                    options={categories?.map((item) => ({
+                                                        value: `${item?.id}`,
+                                                        label: item?.name,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </div>
+                                        <div className='form-add-item'>
+                                            <div className='form-add-item-label'>Sub Category</div>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'subCategory']}
+                                            >
+                                                <Select
+                                                    placeholder="Please select sub category"
+                                                    showSearch
+                                                    mode="tags"
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => (option?.label ?? '')?.toLowerCase().includes(input?.toLowerCase())}
+                                                    filterSort={(optionA, optionB) =>
+                                                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                                    }
+                                                    options={subCategories?.map((item) => ({
+                                                        value: `${item?.id}`,
+                                                        label: item?.name,
+                                                    }))}
+                                                />
+                                            </Form.Item>
+                                        </div>
+                                    </Col>
+                                    <Col span={1}>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </Col>
+                                </Row>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" style={{ width: 'fit-content' }} onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add New Category
+                                </Button>
+                            </Form.Item>
+                        </>
+                        )}
+                    </Form.List>
+                </Card>
+
 
                 <Card
                     title={<span className='form-add-card-title'>More Info</span>}

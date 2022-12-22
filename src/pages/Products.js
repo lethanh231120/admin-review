@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { Row, Col, Card, Layout, Button, Input, Select, Tabs, Form, Image } from 'antd'
+import React, { useState } from 'react'
+import { Row, Col, Card, Layout, Button, Input, Tabs, Form, Image, Select } from 'antd'
 
-// import ProductPending from '../components/product-tab/ProductPending'
-// import ProductScam from '../components/product-tab/ProductScam'
 import { useNavigate } from 'react-router-dom'
-import Verify from '../components/product-tab/ListProject'
-import { get } from '../api/products'
+import ListProduct from '../components/product-tab/ListProducts'
+import ProductResearch from '../components/product-tab/ProductResearch'
 import { search } from '../api/search'
 import _ from 'lodash'
 import './styles/product.scss'
 
+const { Option } = Select
 const { Content } = Layout
 const { TabPane } = Tabs
-const { Option } = Select
 
 const Products = () => {
   const TYPE_PROJECT = 'project'
@@ -32,25 +30,9 @@ const Products = () => {
 //   }
 
   const onFinish = (values) => {
+    console.log(values)
     form.resetFields()
   }
-
-  useEffect(() => {
-    const getCategory = async() => {
-        const categories = await get('reviews/category')
-        setCategories(categories?.data?.categories)
-    }
-    getCategory()
-  }, [])
-
-  useEffect(() => {
-    const getSubCategory = async() => {
-        const category = categories?.find((item) => item?.name === defaulCategory)
-        const subCategory = await get(`reviews/sub-category/categoryId=${category?.id}`)
-        setSubCategories(subCategory?.data?.subCategories)
-    }
-    getSubCategory()
-  }, [defaulCategory, categories])
 
   const searchData = async(value) => {
     const params = {
@@ -73,6 +55,7 @@ const Products = () => {
     // const dataSearch = await search('search/suggest', { keyword: value })
     // setDataSearch(dataSearch?.data?.products)
   }
+
   const handleSearch = _.debounce(searchData, 250)
 
   const handleDetailProduct = (id) => {
@@ -91,7 +74,7 @@ const Products = () => {
                     <Card
                         bordered={false}
                         className="criclebox tablespace mb-24"
-                        title='Products'
+                        title='Products Research'
                         extra={
                             <>
                                 <Button
@@ -167,21 +150,26 @@ const Products = () => {
                                     }}
                                 >
                                     <Tabs type="card">
-                                        <TabPane tab="List Project" key="1">
+                                        <TabPane tab="Product Research" key="1">
                                             <div className="table-responsive">
-                                                <Verify dataSearch={dataSearch}/>
+                                                <ProductResearch/>
                                             </div>
                                         </TabPane>
-                                        <TabPane tab="Pending" key="2">
+                                        <TabPane tab="Product" key="2">
                                             <div className="table-responsive">
-                                                {/* <ProductPending/> */}
+                                                <ListProduct/>
+                                            </div>
+                                        </TabPane>
+                                        {/* <TabPane tab="Pending" key="2">
+                                            <div className="table-responsive">
+                                                <ProductPending/>
                                             </div>
                                         </TabPane>
                                         <TabPane tab="Scam" key="3">
                                             <div className="table-responsive">
-                                                {/* <ProductScam/> */}
+                                                <ProductScam/>
                                             </div>
-                                        </TabPane>
+                                        </TabPane> */}
                                     </Tabs>
                                 </Content>
                             </Col>

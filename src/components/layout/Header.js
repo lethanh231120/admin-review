@@ -223,7 +223,7 @@ const setting = [
 
 const Header = (props) => {
   const dispatch = useDispatch()
-  const { placement, name, onPress, handleSidenavColor, handleSidenavType, handleFixedNavbar, setOpenModal, openModal } = props
+  const { placement, name, onPress, handleSidenavColor, handleSidenavType, handleFixedNavbar } = props
   const navigate = useNavigate()
   const { Title, Text } = Typography;
   const [visible, setVisible] = useState(false);
@@ -252,14 +252,6 @@ const Header = (props) => {
       </div>
       <Row gutter={[24, 0]}>
         <Col span={24} md={6}>
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <NavLink to="/">Pages</NavLink>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item style={{ textTransform: "capitalize" }}>
-              {name.replace("/", "")}
-            </Breadcrumb.Item>
-          </Breadcrumb>
         </Col>
         <Col span={24} md={18} className="header-control">
           <Badge size="small" count={4}>
