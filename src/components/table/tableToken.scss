@@ -4,20 +4,20 @@
         align-items: center;
         & h5.ant-typography{
             margin-top: 0px !important;
-        }
-        &-symbol{
-            position: relative;
-            margin-left: 0.5rem;
-            padding-left: 0.5rem;
-            &:after{
-                position: absolute;
-                content: '';
-                left: 0;
-                top: 25%;
-                width: 0.25rem;
-                height: 0.25rem;
-                background-color: rgba(0, 0, 0, 0.2);
-                border-radius: 50%;
+            &:last-child{
+                position: relative;
+                margin-left: 0.5rem;
+                padding-left: 0.5rem;
+                &:after{
+                    position: absolute;
+                    content: '';
+                    left: 0;
+                    top: 25%;
+                    width: 0.25rem;
+                    height: 0.25rem;
+                    background-color: rgba(0, 0, 0, 0.2);
+                    border-radius: 50%;
+                }
             }
         }
     }

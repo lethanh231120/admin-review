@@ -24,7 +24,7 @@ const DetailProduct = () => {
     const location = useLocation()
     const [categories, setCategories] = useState([])
     const [typeCategory, setTypeCategory] = useState(TYPE_CHOOSE_CATEGORY)
-    const [defaultCategory, setDefaultCategory] = useState()
+    const [defaultCategory, setDefaultCategory] = useState(1)
     const [subCategories, setSubCategories] = useState([])
     const [disableSubCategory, setDisableSubCategory] = useState('')
     const [isEditProduct, setIsEditProduct] = useState(location?.state?.isEdit)
@@ -52,26 +52,19 @@ const DetailProduct = () => {
             symbol,
             website,
             websites,
-            contract,
             ...rest
         } = values
 
         let body = {}
         const listSub = []
 
+        console.log(values)
         subCategory?.forEach((item) => {
             if (item.match(regex)) {
                 const newItem = subCategories?.find((itemSub) => itemSub?.id === parseInt(item))
                 listSub.push(newItem?.name)
             } else {
-                const newItem = subCategories?.find((itemSub) => itemSub?.name === item)
-                if (newItem) {
-                    console.log('ton tai')
-                    listSub.push(item)
-                } else {
-                    console.log('khong ton tai')
-                    listSub.push(`new:${item}`)
-                }
+                listSub.push(`new:${item}`)
             }
         })
 
@@ -107,7 +100,6 @@ const DetailProduct = () => {
                 userId: userInfo?.id,
                 userName: userInfo?.userName,
                 userRole: `${userInfo?.userrole}`,
-                contract: { contract: contract },
                 detail:  {
                     ...detail,
                     community: newCommunity,
@@ -130,7 +122,6 @@ const DetailProduct = () => {
                 userId: userInfo?.id,
                 userName: userInfo?.userName,
                 userRole: `${userInfo?.userrole}`,
-                contract: { contract: contract },
                 detail:  {
                     ...detail,
                     community: newCommunity,
@@ -143,12 +134,10 @@ const DetailProduct = () => {
                 },
             }
         }
-
-        console.log(values)
         console.log(body)
-        await patch(`reviews/product/update/productId=${productId}`, body)
-        setReloadData(true)
-        setIsEditProduct(false)
+        // await patch(`reviews/product/update/productId=${productId}`, body)
+        // setReloadData(true)
+        // setIsEditProduct(false)
     }
     
     const handleChangeType = (value) => {
@@ -188,10 +177,12 @@ const DetailProduct = () => {
         getDataProduct()
     }, [productId, reloadData])
 
+    console.log(productInfo)
+
     // for mat default value for communities, sourceCodes, websites, decimals
     useEffect(() => {
         const communities = []
-        productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && Object.keys(productInfo[0]?.detail?.community)?.forEach((key) => {
+        productInfo[0]?.detail?.community && Object.keys(productInfo[0]?.detail?.community)?.forEach((key) => {
             if (key !== 'facebook' && key !== 'youtube' && key !== 'telegram' && key !== 'instagram' && key !== 'discord' && key !== 'twitter') {
                 communities.push({
                     key: key,
@@ -200,14 +191,14 @@ const DetailProduct = () => {
             }
         })
         const decimals = []
-        productInfo[0]?.detail !== null && productInfo[0]?.detail?.decimals && Object.keys(productInfo[0]?.detail?.decimals)?.forEach((key) => {
+        productInfo[0]?.detail?.decimals && Object.keys(productInfo[0]?.detail?.decimals)?.forEach((key) => {
             decimals.push({
                 chain: key,
                 ...productInfo[0]?.detail?.decimals[key]
             })
         })
         const sourceCodes = []
-        productInfo[0]?.detail !== null && productInfo[0]?.detail?.sourceCode && Object.keys(productInfo[0]?.detail?.sourceCode)?.forEach((key) => {
+        productInfo[0]?.detail?.sourceCode && Object.keys(productInfo[0]?.detail?.sourceCode)?.forEach((key) => {
             if (key !== 'bitbucket' && key !== 'github') {
                 sourceCodes.push({
                     key: key,
@@ -216,7 +207,7 @@ const DetailProduct = () => {
             }
         })
         const websites = []
-        productInfo[0]?.detail !== null && productInfo[0]?.detail?.website && Object.keys(productInfo[0]?.detail?.website)?.forEach((key) => {
+        productInfo[0]?.detail?.website && Object.keys(productInfo[0]?.detail?.website)?.forEach((key) => {
             if (key !== 'announcement' && key !== 'blockchainSite' && key !== 'homepage') {
                 websites.push({
                     key: key,
@@ -225,13 +216,7 @@ const DetailProduct = () => {
             }
         })
         
-        const category = categories?.find((item) => item?.name === productInfo[0]?.category)
-        if (category === undefined) {
-            setDefaultCategory('')
-        } else {
-            setDefaultCategory(category?.id)
-        }
-
+        console.log(communities)
         setDefaultValueForm({
             communities: communities,
             decimals: decimals,
@@ -240,7 +225,38 @@ const DetailProduct = () => {
         })
     }, [productInfo])
 
-    console.log(productInfo)
+    // dung cho product co chua evaluate
+    // const defaultValue = [
+    //     { name: 'address', value: productInfo?.[0]?.address },
+    //     { name: 'chainId', value: productInfo?.[0]?.chainId },
+    //     { name: 'decimals', value: productInfo?.[0]?.decimals },
+    //     { name: 'image', value: productInfo?.[0]?.image },
+    //     // { name: 'isVerify', value: productInfo?.[0]?.isVerify },
+    //     { name: 'marketCap', value: productInfo?.[0]?.marketCap },
+    //     { name: 'maxSupply', value: productInfo?.[0]?.maxSupply },
+    //     { name: 'name', value: productInfo?.[0]?.name },
+    //     { name: 'symbol', value: productInfo?.[0]?.symbol },
+    //     { name: 'totalSupply', value: productInfo?.[0]?.totalSupply },
+    //     { name: 'type', value: productInfo?.[0]?.type },
+    //     { name: 'volumeTrading', value: productInfo?.[0]?.volumnTrading },
+    //     { name: 'category', value: productInfo?.[0]?.category },
+    //     { name: 'newCategory', value: productInfo?.[0]?.newCategory },
+    //     { name: 'subCategory', value: (productInfo?.[0]?.subCategory !== '') ?productInfo?.[0]?.subCategory?.split(',') : [] },
+    //     { name: 'newSubCategory', value: [] },
+    //     { name: 'founders', value: productInfo[0]?.detail?.founders },
+    //     { name: 'funds', value: productInfo[0]?.detail?.funds },
+    //     { name: ['detail', 'description'], value: productInfo?.[0]?.detail?.description },
+    //     { name: ['detail', 'holders'], value: productInfo?.[0]?.detail?.holders },
+    //     { name: ['detail', 'sourceCode'], value: productInfo?.[0]?.detail?.sourceCode },
+    //     { name: ['detail', 'website'], value: productInfo?.[0]?.detail?.website },
+    //     { name: 'moreInfo', value: productInfo?.[0]?.detail?.moreInfo},
+    //     { name: ['community', 'discord'], value: productInfo?.[0]?.detail?.community?.discord },
+    //     { name: ['community', 'facebook'], value: productInfo?.[0]?.detail?.community?.facebook },
+    //     { name: ['community', 'telegram'], value: productInfo?.[0]?.detail?.community?.telegram },
+    //     { name: ['community', 'instagram'], value: productInfo?.[0]?.detail?.community?.instagram },
+    //     { name: ['community', 'twitter'], value: productInfo?.[0]?.detail?.community?.twitter }
+    // ]
+
     const copyAddress = (e, text) => {
         e.stopPropagation()
         navigator.clipboard.writeText(text)
@@ -270,12 +286,12 @@ const DetailProduct = () => {
         { name: 'chainName', value: productInfo[0]?.chainName },
         { name: 'symbol', value: productInfo[0]?.symbol },
         { name: 'name', value: productInfo[0]?.name },
-        { name: 'category', value: productInfo[0]?.category !== null ? productInfo[0]?.category : '' },
+        { name: 'category', value: productInfo[0]?.category },
         { name: 'subCategory', value: (productInfo[0]?.subcategory !== '') ?productInfo[0]?.subcategory?.split(',') : [] },
         // { name: 'newCategory', value: '' },
         // { name: 'newSubCategory', value: [] },
         { name: 'image', value: productInfo[0]?.image },
-        { name: 'desc', value: productInfo[0]?.desc !== null ? productInfo[0]?.desc : ''  },
+        { name: 'desc', value: productInfo[0]?.desc },
         { name: 'isWarning', value: productInfo[0]?.isWarning },
         { name: 'isshow', value: productInfo[0]?.isshow },
         { name: ['evaluate', 'isScam'], value: false },
@@ -285,43 +301,43 @@ const DetailProduct = () => {
         { name: ['evaluate', 'userName'], value: [] },
         { name: ['evaluate', 'userRole'], value: [] },
         { name: ['evaluate', 'isVerify'], value: false },
-        { name: ['detail', 'marketcap'], value: productInfo[0]?.detail !== null ? productInfo[0]?.detail?.marketcap : '' },
-        { name: ['detail', 'totalSupply'], value: productInfo[0]?.detail !== null ? productInfo[0]?.detail?.totalSupply : '' },
-        { name: ['detail', 'maxSupply'], value: productInfo[0]?.detail !== null ? productInfo[0]?.detail?.maxSupply : ''},
-        { name: ['detail', 'volumeTrading'], value: productInfo[0]?.detail !== null ? productInfo[0]?.detail?.volumeTrading : '' },
-        { name: ['detail', 'holder'], value: productInfo[0]?.detail !== null ? productInfo[0]?.detail?.holder : ''},
-        { name: 'contract', value: productInfo[0]?.contract !== null ? productInfo[0]?.contract?.contract : [] },
-        { name: 'moreInfo', value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.moreInfo ? productInfo[0]?.detail?.moreInfo : [] },
+        { name: ['detail', 'marketcap'], value: productInfo[0]?.detail?.marketcap },
+        { name: ['detail', 'totalSupply'], value: productInfo[0]?.detail?.totalSupply },
+        { name: ['detail', 'maxSupply'], value: productInfo[0]?.detail?.maxSupply },
+        { name: ['detail', 'volumeTrading'], value: productInfo[0]?.detail?.volumeTrading },
+        { name: ['detail', 'holder'], value: productInfo[0]?.detail?.holder },
+        { name: 'contract', value: productInfo[0]?.contract?.contract },
+        { name: 'moreInfo', value: productInfo[0]?.detail?.moreInfo ? productInfo[0]?.detail?.moreInfo : [] },
         { name: 'founders', value: productInfo[0]?.detail?.founders ? productInfo[0]?.detail?.founders : [] },
-        { name: 'funds', value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.funds ? productInfo[0]?.detail?.funds : [] },
+        { name: 'funds', value: productInfo[0]?.detail?.funds ? productInfo[0]?.detail?.funds : [] },
         {
             name: ['community', 'facebook'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['facebook']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['facebook']
                 ? productInfo[0]?.detail?.community['facebook'] : []
         },
         {
             name: ['community', 'twitter'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['twitter']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['twitter']
                 ? productInfo[0]?.detail?.community['twitter'] : []
         },
         {
             name: ['community', 'discord'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['discord']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['discord']
                 ? productInfo[0]?.detail?.community['discord'] : []
         },
         {
             name: ['community', 'telegram'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['telegram']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['telegram']
                 ? productInfo[0]?.detail?.community['telegram'] : []
         },
         {
             name: ['community', 'instagram'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['instagram']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['instagram']
             ? productInfo[0]?.detail?.community['instagram'] : []
         },
         {
             name: ['community', 'youtube'],
-            value: productInfo[0]?.detail !== null && productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['youtube']
+            value: productInfo[0]?.detail?.community && productInfo[0]?.detail?.community['youtube']
                 ? productInfo[0]?.detail?.community['youtube'] : []
         },
         {
@@ -1003,6 +1019,12 @@ const DetailProduct = () => {
                                                             <Form.Item
                                                                 {...restField}
                                                                 name={[name, 'key']}
+                                                                rules={[
+                                                                    {
+                                                                    required: true,
+                                                                    message: 'Missing key',
+                                                                    },
+                                                                ]}
                                                             >
                                                                 <Input placeholder="Enter key" />
                                                             </Form.Item>
@@ -1013,6 +1035,12 @@ const DetailProduct = () => {
                                                                     <Form.Item
                                                                         {...restField}
                                                                         name={[name, 'value']}
+                                                                        rules={[
+                                                                            {
+                                                                            required: true,
+                                                                            message: 'Missing value',
+                                                                            },
+                                                                        ]}
                                                                     >
                                                                         <Select
                                                                             placeholder="Enter Link url"

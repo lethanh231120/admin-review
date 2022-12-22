@@ -2,8 +2,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 module.exports = function(app) {
   app.use(
     createProxyMiddleware('/productURL', {
-      target: 'https://dev-be.admin.gear5.guru',
-      // target: process.env.REACT_APP_BACK_END_URL,
+      target: 'https://admin-poker0.gear5.guru',
       changeOrigin: true,
       pathRewrite: {
         '^/productURL': ''
@@ -15,7 +14,6 @@ module.exports = function(app) {
   )
   app.use(
     createProxyMiddleware('/searchURL', {
-      // target: process.env.REACT_APP_BACK_END_SEARCH,
       target: 'https://search-poker0.gear5.guru',
       changeOrigin: true,
       pathRewrite: {
@@ -28,7 +26,6 @@ module.exports = function(app) {
   )
   app.use(
     createProxyMiddleware('/monitorURL', {
-      // target: process.env.REACT_APP_BACK_END_MONITOR,
       target: 'https://alter-poker0.gear5.guru',
       changeOrigin: true,
       pathRewrite: {

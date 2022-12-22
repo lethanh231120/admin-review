@@ -51,9 +51,7 @@ const TableToken = ({ page, setPage, setReloadVerify, total, dataSearch, loading
             )}
             <div className="avatar-info">
                 <Title level={5}>{record?.name}</Title>
-                {record?.symbol && (
-                    <div className={`${record?.symbol ? 'avatar-info-symbol' : ''}`}>{record?.symbol ? record?.symbol : ''}</div>
-                )}
+                <Title level={5}>{record?.symbol}</Title>
             </div>
         </Avatar.Group>
         </>

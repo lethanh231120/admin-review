@@ -16,10 +16,6 @@ const ListProduct = ({ loading, total, setReloadProduct, setPage, page, dataSear
     e.stopPropagation()
     await del(`reviews/product/productId=${record?.id}`)
     setReloadProduct(true)
-    message.success({
-        content: `Delete ${record?.name ? record?.name : record?.id} successfully`,
-        duration: 3
-    })
   }
 
   const handleEditProduct = async(e, record) => {
@@ -30,6 +26,12 @@ const ListProduct = ({ loading, total, setReloadProduct, setPage, page, dataSear
 //   const handleClickItem = (record) => {
 //     navigate(`../products/${record?.id}`, { state: { isEdit: false }})
 //   }
+
+  const handleNewTab = (e, record) => {
+    e.stopPropagation()
+    const domain = window.location.origin
+    window.open(`${domain}/products/${record?.id}`, '_blank', 'noopener,noreferrer')
+  }
  
   const copyAddress = (e, text) => {
     e.stopPropagation()
@@ -51,7 +53,10 @@ const ListProduct = ({ loading, total, setReloadProduct, setPage, page, dataSear
     {
         title: "Product Name",
         dataIndex: "name",
-        render: (_, record) => <a href={`../../products/${record?.id}`} rel="noreferrer">
+        render: (_, record) => <span
+            onClick={(e) => handleNewTab(e, record)}
+            onContextMenu={(e) => handleNewTab(e, record)}
+        >
             <Avatar.Group>
                 {record?.image  ? (
                     <Avatar
@@ -72,11 +77,11 @@ const ListProduct = ({ loading, total, setReloadProduct, setPage, page, dataSear
                 <div className="avatar-info">
                     <Title level={5}>{record?.name}</Title>
                     {record?.symbol && (
-                        <div className={`${record?.symbol ? 'avatar-info-symbol' : ''}`}>{record?.symbol ? record?.symbol : ''}</div>
+                        <div className='avatar-info-symbol'>{record?.symbol ? record?.symbol : ''}</div>
                     )}
                 </div>
             </Avatar.Group>
-        </a>
+        </span>
     },
     {
         title: "Type",
